@@ -1,8 +1,6 @@
 "use client";
 
-import * as React from "react";
-import { TourProvider } from "./tour-provider";
-import type { TourConfig } from "@inklu/tour";
+import { TourProvider, type TourConfig } from "@inklu/tour";
 
 const tours: TourConfig[] = [
 	{
@@ -14,7 +12,8 @@ const tours: TourConfig[] = [
 				placement: "bottom-center",
 				meta: {
 					title: "Welcome to Inklu Docs",
-					content: "This is a demonstration of the highly polished, headless @inklu/tour package running inside a Next.js application.",
+					content:
+						"This is a demonstration of the highly polished, headless @inklu/tour package running inside a Next.js application.",
 				},
 			},
 			{
@@ -23,7 +22,8 @@ const tours: TourConfig[] = [
 				placement: "right-center",
 				meta: {
 					title: "Execute Commands",
-					content: "You can copy and run these commands to start your development server locally.",
+					content:
+						"You can copy and run these commands to start your development server locally.",
 				},
 			},
 			{
@@ -32,7 +32,8 @@ const tours: TourConfig[] = [
 				placement: "top-center",
 				meta: {
 					title: "Start Writing",
-					content: "Click this link to head over to the documentation layout and see how navigation works seamlessly with the tour.",
+					content:
+						"Click this link to head over to the documentation layout and see how navigation works seamlessly with the tour.",
 				},
 			},
 		],
