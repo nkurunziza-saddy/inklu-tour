@@ -6,24 +6,17 @@ import {
 	HoverCard,
 	HoverCardContent,
 	HoverCardTrigger,
+	Separator,
 	SiteHeader,
 	SiteLayout,
 	TextEffect,
 } from "@inklu/docs";
 import { useTour } from "@inklu/tour";
 import { SmoothCorners } from "@lisse/react";
-import {
-	AppWindow,
-	ArrowRight,
-	CheckCircle,
-	CursorClick,
-	FrameCorners,
-	PlayCircle,
-	Sparkle,
-	Target,
-} from "@phosphor-icons/react";
+import { ArrowRight, PlayCircle } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import Link from "next/link";
+import * as React from "react";
 
 export default function Home() {
 	return (
@@ -35,7 +28,7 @@ export default function Home() {
 				</p>
 			}
 		>
-			<div className="max-w-[1200px] mx-auto px-4 sm:px-6 w-full pt-24 pb-32">
+			<div className="max-w-4xl mx-auto px-4 sm:px-6 w-full pt-24 pb-32">
 				<div className="typeset typeset-docs">
 					<TextEffect
 						as="h1"
@@ -120,10 +113,9 @@ export default function Home() {
 					>
 						Experience the capabilities of the library directly. Click the
 						button below to start an interactive tour across the simulated
-						dashboard on the left.
+						dashboard.
 					</motion.p>
 
-					{/* The Showcase Stage (Inherits the structure idea, but styled cleanly in the prose layout) */}
 					<motion.div
 						initial={{ opacity: 0, y: 10 }}
 						animate={{ opacity: 1, y: 0 }}
@@ -131,109 +123,52 @@ export default function Home() {
 						className="not-typeset mt-10 mb-14"
 					>
 						<SmoothCorners corners={{ radius: 24, smoothing: 1 }} asChild>
-							<div className="grid lg:grid-cols-[1.2fr_1fr] border border-border/50 overflow-hidden bg-secondary/5 rounded-2xl">
-								{/* Left: Live Preview */}
-								<div className="flex flex-col border-b lg:border-b-0 lg:border-r border-border/50 relative overflow-hidden bg-background">
-									<div className="absolute inset-0 bg-[radial-gradient(currentColor_1px,transparent_1px)] bg-[size:16px_16px] opacity-[0.03] pointer-events-none" />
+							<div className="flex flex-col border border-border/50 relative overflow-hidden bg-background">
+								<div className="absolute inset-0 bg-[radial-gradient(currentColor_1px,transparent_1px)] bg-[size:16px_16px] opacity-[0.03] pointer-events-none" />
 
-									<div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-border/50 bg-background/50 backdrop-blur-md">
-										<span className="text-sm font-medium text-foreground">
-											Live Preview
-										</span>
-										<TourStartButton />
-									</div>
-
-									<div className="relative z-10 flex-1 p-8 flex flex-col gap-8">
-										{/* Fake Header/Nav */}
-										<div className="flex items-center justify-between gap-4">
-											<div className="flex gap-4 tgt-workspace">
-												<div className="text-sm font-medium text-purple-500">
-													Workspace
-												</div>
-												<div className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-default">
-													Settings
-												</div>
-											</div>
-											<div className="tgt-new-project">
-												<Button
-													size="sm"
-													variant="outline"
-													className="shadow-xs bg-background h-8 border-purple-500/20 text-purple-500 hover:bg-purple-500/10 hover:text-purple-600"
-												>
-													Deploy
-												</Button>
-											</div>
-										</div>
-
-										{/* Fake Content Area */}
-										<div className="flex-1 flex flex-col gap-4">
-											<span className="text-sm font-medium text-muted-foreground">
-												Activity
-											</span>
-											<div className="tgt-chart flex-1 rounded-xl border border-border/50 shadow-xs p-6 flex items-end gap-3 min-h-[180px] bg-background">
-												{[40, 70, 45, 90, 65, 80, 55].map((h, i) => (
-													<div
-														key={i}
-														className="flex-1 bg-purple-500/10 hover:bg-purple-500/20 rounded-t-sm transition-all"
-														style={{ height: `${h}%` }}
-													/>
-												))}
-											</div>
-										</div>
-									</div>
+								<div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-border/50 bg-background/50 backdrop-blur-md">
+									<span className="text-sm font-medium text-foreground">
+										Live Preview
+									</span>
+									<TourStartButton />
 								</div>
 
-								{/* Right: Capabilities Grid */}
-								<div className="grid grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-border/50 relative">
-									{/* Column 1 */}
-									<div className="flex flex-col divide-y divide-border/50 border-r border-border/50">
-										<ShowcaseFeature
-											title="Tooltip"
-											desc="Anchored to elements, seamlessly tracks scroll position."
-											color="text-purple-500"
-											bg="bg-purple-500/10"
-											icon={<CursorClick weight="duotone" className="size-5" />}
-										/>
-										<ShowcaseFeature
-											title="Modal"
-											desc="Centered overlay for general introductions."
-											color="text-blue-500"
-											bg="bg-blue-500/10"
-											icon={<AppWindow weight="duotone" className="size-5" />}
-										/>
-										<ShowcaseFeature
-											title="Checklist"
-											desc="Persistent, self-paced, and easily resumable."
-											color="text-emerald-500"
-											bg="bg-emerald-500/10"
-											icon={<CheckCircle weight="duotone" className="size-5" />}
-										/>
+								<div className="relative z-10 flex-1 p-8 flex flex-col gap-8 min-h-[340px]">
+									{/* Fake Header/Nav */}
+									<div className="flex items-center justify-between gap-4">
+										<div className="flex gap-4 tgt-workspace">
+											<div className="text-sm font-medium text-foreground">
+												Workspace
+											</div>
+											<div className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-default">
+												Settings
+											</div>
+										</div>
+										<div className="tgt-new-project">
+											<Button
+												size="sm"
+												variant="outline"
+												className="shadow-xs bg-background h-8"
+											>
+												Deploy
+											</Button>
+										</div>
 									</div>
-									{/* Column 2 */}
-									<div className="flex flex-col divide-y divide-border/50">
-										<ShowcaseFeature
-											title="Spotlight"
-											desc="Dimmed backdrop highlighting a single element."
-											color="text-red-500"
-											bg="bg-red-500/10"
-											icon={
-												<FrameCorners weight="duotone" className="size-5" />
-											}
-										/>
-										<ShowcaseFeature
-											title="Hotspot"
-											desc="A quiet, pulsing nudge without a forced tooltip."
-											color="text-amber-500"
-											bg="bg-amber-500/10"
-											icon={<Target weight="duotone" className="size-5" />}
-										/>
-										<ShowcaseFeature
-											title="Beacon"
-											desc="Passive marker that resolves upon interaction."
-											color="text-pink-500"
-											bg="bg-pink-500/10"
-											icon={<Sparkle weight="duotone" className="size-5" />}
-										/>
+
+									{/* Fake Content Area */}
+									<div className="flex-1 flex flex-col gap-4">
+										<span className="text-sm font-medium text-muted-foreground">
+											Activity
+										</span>
+										<div className="tgt-chart flex-1 rounded-xl border border-border/50 shadow-xs p-6 flex items-end gap-3 min-h-[180px] bg-background">
+											{[40, 70, 45, 90, 65, 80, 55].map((h, i) => (
+												<div
+													key={i}
+													className="flex-1 bg-foreground/10 hover:bg-foreground/15 rounded-t-sm transition-all"
+													style={{ height: `${h}%` }}
+												/>
+											))}
+										</div>
 									</div>
 								</div>
 							</div>
@@ -266,38 +201,53 @@ export default function Home() {
 					</motion.div>
 				</div>
 			</div>
+
+			<TourToolbar />
 		</SiteLayout>
 	);
 }
 
-function ShowcaseFeature({
-	title,
-	desc,
-	icon,
-	color,
-	bg,
-}: {
-	title: string;
-	desc: string;
-	icon: React.ReactNode;
-	color: string;
-	bg: string;
-}) {
-	return (
-		<div className="flex flex-col p-6 min-h-[160px] bg-transparent group relative overflow-hidden">
-			{/* Subtle hover bloom */}
-			<div
-				className={`absolute -right-8 -top-8 w-24 h-24 ${bg} rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}
-			/>
+function TourToolbar() {
+	const [style, setStyle] = React.useState("tooltip");
+	const [showProgress, setShowProgress] = React.useState(false);
 
-			<div className="flex items-center gap-3 mb-4 relative z-10">
-				<div className={`p-2 rounded-xl ${bg} ${color}`}>{icon}</div>
-				<span className="text-sm font-medium text-foreground">{title}</span>
-			</div>
-			<div className="mt-auto relative z-10">
-				<p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">
-					{desc}
-				</p>
+	return (
+		<div className="pointer-events-none fixed inset-x-0 bottom-6 z-50 flex justify-center px-4 select-none">
+			<div className="pointer-events-auto flex items-center gap-2 rounded-full border border-border/60 bg-background/90 p-1.5 shadow-2xl backdrop-blur-md transition-all duration-200 hover:border-border">
+				{/* Style Selector */}
+				<div className="flex items-center gap-1 bg-secondary/40 p-0.5 rounded-full border border-border/40">
+					{(["tooltip", "spotlight", "modal"] as const).map((t) => {
+						const active = style === t;
+						return (
+							<button
+								key={t}
+								type="button"
+								onClick={() => setStyle(t)}
+								className={`flex items-center gap-1 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-150 cursor-pointer ${
+									active
+										? "bg-background text-foreground shadow-xs border border-border/50"
+										: "text-muted-foreground/75 hover:text-foreground hover:bg-background/40"
+								}`}
+							>
+								{t.charAt(0).toUpperCase() + t.slice(1)}
+							</button>
+						);
+					})}
+				</div>
+
+				<Separator orientation="vertical" className="h-4 mx-1 bg-border/50" />
+
+				<button
+					type="button"
+					onClick={() => setShowProgress(!showProgress)}
+					className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium transition-all duration-150 cursor-pointer ${
+						showProgress
+							? "text-foreground"
+							: "text-muted-foreground/75 hover:text-foreground hover:bg-secondary/40"
+					}`}
+				>
+					Progress Bar: {showProgress ? "On" : "Off"}
+				</button>
 			</div>
 		</div>
 	);
