@@ -11,7 +11,17 @@ import {
 	TextEffect,
 } from "@inklu/docs";
 import { useTour } from "@inklu/tour";
-import { ArrowRight, PlayCircle } from "@phosphor-icons/react";
+import { SmoothCorners } from "@lisse/react";
+import {
+	AppWindow,
+	ArrowRight,
+	CheckCircle,
+	CursorClick,
+	FrameCorners,
+	PlayCircle,
+	Sparkle,
+	Target,
+} from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import Link from "next/link";
 
@@ -120,98 +130,114 @@ export default function Home() {
 						transition={{ delay: 0.8, duration: 0.5, ease: "easeOut" }}
 						className="not-typeset mt-10 mb-14"
 					>
-						<div className="grid lg:grid-cols-[1.2fr_1fr] border border-border/50 rounded-2xl overflow-hidden bg-secondary/5">
-							{/* Left: Live Preview */}
-							<div className="flex flex-col border-b lg:border-b-0 lg:border-r border-border/50 relative overflow-hidden bg-background">
-								<div className="absolute inset-0 bg-[radial-gradient(currentColor_1px,transparent_1px)] bg-[size:16px_16px] opacity-[0.03] pointer-events-none" />
+						<SmoothCorners corners={{ radius: 24, smoothing: 1 }} asChild>
+							<div className="grid lg:grid-cols-[1.2fr_1fr] border border-border/50 overflow-hidden bg-secondary/5 rounded-2xl">
+								{/* Left: Live Preview */}
+								<div className="flex flex-col border-b lg:border-b-0 lg:border-r border-border/50 relative overflow-hidden bg-background">
+									<div className="absolute inset-0 bg-[radial-gradient(currentColor_1px,transparent_1px)] bg-[size:16px_16px] opacity-[0.03] pointer-events-none" />
 
-								<div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-border/50 bg-background/50 backdrop-blur-md">
-									<span className="text-sm font-medium text-foreground">
-										Live Preview
-									</span>
-									<TourStartButton />
-								</div>
-
-								<div className="relative z-10 flex-1 p-8 flex flex-col gap-8">
-									{/* Fake Header/Nav */}
-									<div className="flex items-center justify-between gap-4">
-										<div className="flex gap-4 tgt-workspace">
-											<div className="text-sm font-medium text-foreground">
-												Workspace
-											</div>
-											<div className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-default">
-												Settings
-											</div>
-										</div>
-										<div className="tgt-new-project">
-											<Button
-												size="sm"
-												variant="outline"
-												className="shadow-xs bg-background h-8"
-											>
-												Deploy
-											</Button>
-										</div>
-									</div>
-
-									{/* Fake Content Area */}
-									<div className="flex-1 flex flex-col gap-4">
-										<span className="text-sm font-medium text-muted-foreground">
-											Activity
+									<div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-border/50 bg-background/50 backdrop-blur-md">
+										<span className="text-sm font-medium text-foreground">
+											Live Preview
 										</span>
-										<div className="tgt-chart flex-1 rounded-xl border border-border/50 shadow-xs p-6 flex items-end gap-3 min-h-[180px] bg-background">
-											{[40, 70, 45, 90, 65, 80, 55].map((h, i) => (
-												<div
-													key={i}
-													className="flex-1 bg-foreground/10 hover:bg-foreground/15 rounded-t-sm transition-all"
-													style={{ height: `${h}%` }}
-												/>
-											))}
+										<TourStartButton />
+									</div>
+
+									<div className="relative z-10 flex-1 p-8 flex flex-col gap-8">
+										{/* Fake Header/Nav */}
+										<div className="flex items-center justify-between gap-4">
+											<div className="flex gap-4 tgt-workspace">
+												<div className="text-sm font-medium text-purple-500">
+													Workspace
+												</div>
+												<div className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-default">
+													Settings
+												</div>
+											</div>
+											<div className="tgt-new-project">
+												<Button
+													size="sm"
+													variant="outline"
+													className="shadow-xs bg-background h-8 border-purple-500/20 text-purple-500 hover:bg-purple-500/10 hover:text-purple-600"
+												>
+													Deploy
+												</Button>
+											</div>
+										</div>
+
+										{/* Fake Content Area */}
+										<div className="flex-1 flex flex-col gap-4">
+											<span className="text-sm font-medium text-muted-foreground">
+												Activity
+											</span>
+											<div className="tgt-chart flex-1 rounded-xl border border-border/50 shadow-xs p-6 flex items-end gap-3 min-h-[180px] bg-background">
+												{[40, 70, 45, 90, 65, 80, 55].map((h, i) => (
+													<div
+														key={i}
+														className="flex-1 bg-purple-500/10 hover:bg-purple-500/20 rounded-t-sm transition-all"
+														style={{ height: `${h}%` }}
+													/>
+												))}
+											</div>
 										</div>
 									</div>
 								</div>
-							</div>
 
-							{/* Right: Capabilities Grid */}
-							<div className="grid grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-border/50 relative">
-								{/* Column 1 */}
-								<div className="flex flex-col divide-y divide-border/50 border-r border-border/50">
-									<ShowcaseFeature
-										number="01"
-										title="Tooltip"
-										desc="Anchored to elements, seamlessly tracks scroll position."
-									/>
-									<ShowcaseFeature
-										number="03"
-										title="Modal"
-										desc="Centered overlay for general introductions."
-									/>
-									<ShowcaseFeature
-										number="05"
-										title="Checklist"
-										desc="Persistent, self-paced, and easily resumable."
-									/>
-								</div>
-								{/* Column 2 */}
-								<div className="flex flex-col divide-y divide-border/50">
-									<ShowcaseFeature
-										number="02"
-										title="Spotlight"
-										desc="Dimmed backdrop highlighting a single element."
-									/>
-									<ShowcaseFeature
-										number="04"
-										title="Hotspot"
-										desc="A quiet, pulsing nudge without a forced tooltip."
-									/>
-									<ShowcaseFeature
-										number="06"
-										title="Beacon"
-										desc="Passive marker that resolves upon interaction."
-									/>
+								{/* Right: Capabilities Grid */}
+								<div className="grid grid-cols-2 divide-y lg:divide-y-0 lg:divide-x divide-border/50 relative">
+									{/* Column 1 */}
+									<div className="flex flex-col divide-y divide-border/50 border-r border-border/50">
+										<ShowcaseFeature
+											title="Tooltip"
+											desc="Anchored to elements, seamlessly tracks scroll position."
+											color="text-purple-500"
+											bg="bg-purple-500/10"
+											icon={<CursorClick weight="duotone" className="size-5" />}
+										/>
+										<ShowcaseFeature
+											title="Modal"
+											desc="Centered overlay for general introductions."
+											color="text-blue-500"
+											bg="bg-blue-500/10"
+											icon={<AppWindow weight="duotone" className="size-5" />}
+										/>
+										<ShowcaseFeature
+											title="Checklist"
+											desc="Persistent, self-paced, and easily resumable."
+											color="text-emerald-500"
+											bg="bg-emerald-500/10"
+											icon={<CheckCircle weight="duotone" className="size-5" />}
+										/>
+									</div>
+									{/* Column 2 */}
+									<div className="flex flex-col divide-y divide-border/50">
+										<ShowcaseFeature
+											title="Spotlight"
+											desc="Dimmed backdrop highlighting a single element."
+											color="text-red-500"
+											bg="bg-red-500/10"
+											icon={
+												<FrameCorners weight="duotone" className="size-5" />
+											}
+										/>
+										<ShowcaseFeature
+											title="Hotspot"
+											desc="A quiet, pulsing nudge without a forced tooltip."
+											color="text-amber-500"
+											bg="bg-amber-500/10"
+											icon={<Target weight="duotone" className="size-5" />}
+										/>
+										<ShowcaseFeature
+											title="Beacon"
+											desc="Passive marker that resolves upon interaction."
+											color="text-pink-500"
+											bg="bg-pink-500/10"
+											icon={<Sparkle weight="duotone" className="size-5" />}
+										/>
+									</div>
 								</div>
 							</div>
-						</div>
+						</SmoothCorners>
 					</motion.div>
 
 					<TextEffect as="h2" preset="fade-in-blur" per="word" delay={0.9}>
@@ -245,23 +271,30 @@ export default function Home() {
 }
 
 function ShowcaseFeature({
-	number,
 	title,
 	desc,
+	icon,
+	color,
+	bg,
 }: {
-	number: string;
 	title: string;
 	desc: string;
+	icon: React.ReactNode;
+	color: string;
+	bg: string;
 }) {
 	return (
-		<div className="flex flex-col p-6 min-h-[160px] bg-transparent group">
-			<div className="flex items-center gap-2 mb-4">
-				<span className="text-sm font-medium text-muted-foreground">
-					{number}
-				</span>
+		<div className="flex flex-col p-6 min-h-[160px] bg-transparent group relative overflow-hidden">
+			{/* Subtle hover bloom */}
+			<div
+				className={`absolute -right-8 -top-8 w-24 h-24 ${bg} rounded-full blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none`}
+			/>
+
+			<div className="flex items-center gap-3 mb-4 relative z-10">
+				<div className={`p-2 rounded-xl ${bg} ${color}`}>{icon}</div>
 				<span className="text-sm font-medium text-foreground">{title}</span>
 			</div>
-			<div className="mt-auto">
+			<div className="mt-auto relative z-10">
 				<p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">
 					{desc}
 				</p>

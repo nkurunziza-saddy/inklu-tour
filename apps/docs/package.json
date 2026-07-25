@@ -11,6 +11,7 @@
 	"dependencies": {
 		"@inklu/docs": "^0.4.0",
 		"@inklu/tour": "workspace:^",
+		"@lisse/react": "^0.6.0",
 		"@phosphor-icons/react": "^2.1.10",
 		"@radix-ui/react-icons": "^1.3.2",
 		"motion": "^12.42.2",
