@@ -25,7 +25,7 @@ export default function Home() {
 				</p>
 			}
 		>
-			<div className="max-w-(--layout-content-width) mx-auto px-4 sm:px-6 w-full pt-24 pb-32">
+			<div className="max-w-[1200px] mx-auto px-4 sm:px-6 w-full pt-24 pb-32">
 				<div className="typeset typeset-docs">
 					<TextEffect
 						as="h1"
@@ -126,7 +126,7 @@ export default function Home() {
 								<div className="absolute inset-0 bg-[radial-gradient(currentColor_1px,transparent_1px)] bg-[size:16px_16px] opacity-[0.03] pointer-events-none" />
 
 								<div className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-border/50 bg-background/50 backdrop-blur-md">
-									<span className="font-mono text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+									<span className="text-sm font-medium text-foreground">
 										Live Preview
 									</span>
 									<TourStartButton />
@@ -135,11 +135,11 @@ export default function Home() {
 								<div className="relative z-10 flex-1 p-8 flex flex-col gap-8">
 									{/* Fake Header/Nav */}
 									<div className="flex items-center justify-between gap-4">
-										<div className="flex gap-2 tgt-workspace">
-											<div className="px-4 py-2 rounded-lg bg-secondary text-sm font-medium">
+										<div className="flex gap-4 tgt-workspace">
+											<div className="text-sm font-medium text-foreground">
 												Workspace
 											</div>
-											<div className="px-4 py-2 rounded-lg text-muted-foreground text-sm font-medium">
+											<div className="text-sm text-muted-foreground hover:text-foreground transition-colors cursor-default">
 												Settings
 											</div>
 										</div>
@@ -147,7 +147,7 @@ export default function Home() {
 											<Button
 												size="sm"
 												variant="outline"
-												className="shadow-xs bg-background"
+												className="shadow-xs bg-background h-8"
 											>
 												Deploy
 											</Button>
@@ -156,13 +156,15 @@ export default function Home() {
 
 									{/* Fake Content Area */}
 									<div className="flex-1 flex flex-col gap-4">
-										<div className="h-6 w-32 bg-border/40 rounded-md" />
+										<span className="text-sm font-medium text-muted-foreground">
+											Activity
+										</span>
 										<div className="tgt-chart flex-1 rounded-xl border border-border/50 shadow-xs p-6 flex items-end gap-3 min-h-[180px] bg-background">
 											{[40, 70, 45, 90, 65, 80, 55].map((h, i) => (
 												<div
 													key={i}
-													className="flex-1 bg-foreground/10 rounded-t-sm transition-all"
-													style={{ height: h + "%" }}
+													className="flex-1 bg-foreground/10 hover:bg-foreground/15 rounded-t-sm transition-all"
+													style={{ height: `${h}%` }}
 												/>
 											))}
 										</div>
@@ -253,12 +255,14 @@ function ShowcaseFeature({
 }) {
 	return (
 		<div className="flex flex-col p-6 min-h-[160px] bg-transparent group">
-			<div className="flex items-center justify-between font-mono text-[10px] text-muted-foreground mb-4 tracking-widest uppercase">
-				<span>{number}</span>
-				<b className="text-foreground">{title}</b>
+			<div className="flex items-center gap-2 mb-4">
+				<span className="text-sm font-medium text-muted-foreground">
+					{number}
+				</span>
+				<span className="text-sm font-medium text-foreground">{title}</span>
 			</div>
-			<div className="mt-auto space-y-1">
-				<p className="text-xs text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">
+			<div className="mt-auto">
+				<p className="text-sm text-muted-foreground leading-relaxed group-hover:text-foreground/80 transition-colors">
 					{desc}
 				</p>
 			</div>
