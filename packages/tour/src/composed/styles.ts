@@ -14,42 +14,31 @@ const TOUR_CSS = /* css */ `
 /* ── Theme tokens ────────────────────────────────────────────────── */
 
 :root {
-  --tour-bg: #ffffff;
-  --tour-fg: #09090b;
-  --tour-muted: #71717a;
-  --tour-border: rgba(0, 0, 0, 0.08);
-  --tour-accent: #18181b;
-  --tour-accent-fg: #fafafa;
-  --tour-secondary: #f4f4f5;
+  --tour-bg: var(--popover, #ffffff);
+  --tour-fg: var(--popover-foreground, #09090b);
+  --tour-muted: var(--muted-foreground, #71717a);
+  --tour-border: var(--border, rgba(0, 0, 0, 0.08));
+  --tour-accent: var(--primary, #18181b);
+  --tour-accent-fg: var(--primary-foreground, #fafafa);
+  --tour-secondary: var(--secondary, #f4f4f5);
   --tour-radius: 12px;
-  --tour-shadow: 0 4px 24px rgba(0, 0, 0, 0.08), 0 1px 2px rgba(0, 0, 0, 0.04);
+  --tour-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
   --tour-width: 320px;
 }
 
 .dark,
 [data-theme="dark"] {
-  --tour-bg: #18181b;
-  --tour-fg: #fafafa;
-  --tour-muted: #a1a1aa;
-  --tour-border: rgba(255, 255, 255, 0.1);
-  --tour-accent: #fafafa;
-  --tour-accent-fg: #18181b;
-  --tour-secondary: #27272a;
-  --tour-shadow: 0 4px 24px rgba(0, 0, 0, 0.32), 0 1px 2px rgba(0, 0, 0, 0.16);
+  --tour-bg: var(--popover, #18181b);
+  --tour-fg: var(--popover-foreground, #fafafa);
+  --tour-muted: var(--muted-foreground, #a1a1aa);
+  --tour-border: var(--border, rgba(255, 255, 255, 0.1));
+  --tour-accent: var(--primary, #fafafa);
+  --tour-accent-fg: var(--primary-foreground, #18181b);
+  --tour-secondary: var(--secondary, #27272a);
+  --tour-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
 /* ── Animations ──────────────────────────────────────────────────── */
-
-@keyframes inklu-tour-card-in {
-  from {
-    opacity: 0;
-    transform: scale(0.96) translateY(6px);
-  }
-  to {
-    opacity: 1;
-    transform: scale(1) translateY(0);
-  }
-}
 
 @keyframes inklu-tour-spin {
   to {
@@ -71,12 +60,30 @@ const TOUR_CSS = /* css */ `
   font-size: 13px;
   line-height: 1.5;
   outline: none;
-  animation: inklu-tour-card-in 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0;
+  transform: scale(1) translateY(0);
+  transition: opacity 150ms ease-out;
+}
+
+.inklu-tour-card[data-open="true"] {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+  transition: opacity 250ms cubic-bezier(0.23, 1, 0.32, 1), transform 250ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@starting-style {
+  .inklu-tour-card[data-open="true"] {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .inklu-tour-card {
-    animation: none;
+    transition: opacity 150ms ease-out;
+  }
+  .inklu-tour-card[data-open="true"] {
+    transition: opacity 250ms ease-out;
   }
 }
 
@@ -86,7 +93,7 @@ const TOUR_CSS = /* css */ `
   display: flex;
   flex-direction: column;
   gap: 16px;
-  padding: 16px;
+  padding: 16px 20px;
 }
 
 /* ── Header ──────────────────────────────────────────────────────── */
@@ -106,19 +113,13 @@ const TOUR_CSS = /* css */ `
 }
 
 .inklu-tour-step-counter {
-  font-size: 10px;
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
+  font-size: 12px;
   color: var(--tour-muted);
-  opacity: 0.7;
 }
 
 .inklu-tour-title {
   font-size: 14px;
-  font-weight: 600;
-  letter-spacing: -0.01em;
-  line-height: 1.3;
+  font-weight: 500;
   color: var(--tour-fg);
   margin: 0;
 }
@@ -139,29 +140,20 @@ const TOUR_CSS = /* css */ `
   color: var(--tour-muted);
   cursor: pointer;
   padding: 0;
-  transition: color 150ms;
+  transition: color 150ms, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.inklu-tour-close:hover {
-  color: var(--tour-fg);
+.inklu-tour-close:active {
+  transform: scale(0.97);
 }
 
-/* ── Progress bar ────────────────────────────────────────────────── */
-
-.inklu-tour-progress {
-  height: 2px;
-  width: 100%;
-  background: var(--tour-secondary);
-  border-radius: 9999px;
-  overflow: hidden;
-  margin-top: 4px;
+@media (hover: hover) and (pointer: fine) {
+  .inklu-tour-close:hover {
+    color: var(--tour-fg);
+  }
 }
 
-.inklu-tour-progress-fill {
-  height: 100%;
-  background: var(--tour-fg);
-  transition: width 300ms cubic-bezier(0.22, 1, 0.36, 1);
-}
+
 
 /* ── Content ─────────────────────────────────────────────────────── */
 
@@ -171,13 +163,33 @@ const TOUR_CSS = /* css */ `
   color: var(--tour-muted);
 }
 
+.inklu-tour-content-wrapper {
+  opacity: 1;
+  filter: blur(0px);
+  transition: opacity 150ms cubic-bezier(0.23, 1, 0.32, 1), filter 150ms cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+@starting-style {
+  .inklu-tour-content-wrapper {
+    opacity: 0;
+    filter: blur(2px);
+  }
+}
+
 /* ── Footer ──────────────────────────────────────────────────────── */
 
 .inklu-tour-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding-top: 4px;
+  padding-top: 8px;
+}
+
+.inklu-tour-footer-left,
+.inklu-tour-footer-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
 }
 
 /* ── Previous button ─────────────────────────────────────────────── */
@@ -186,20 +198,26 @@ const TOUR_CSS = /* css */ `
   height: 28px;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  justify-content: center;
   padding: 0 8px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   font-family: inherit;
   color: var(--tour-muted);
   background: transparent;
   border: none;
   cursor: pointer;
-  transition: color 150ms;
+  transition: color 150ms, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.inklu-tour-btn-prev:hover:not(:disabled) {
-  color: var(--tour-fg);
+.inklu-tour-btn-prev:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .inklu-tour-btn-prev:hover:not(:disabled) {
+    color: var(--tour-fg);
+  }
 }
 
 .inklu-tour-btn-prev:disabled {
@@ -214,9 +232,8 @@ const TOUR_CSS = /* css */ `
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 4px;
   padding: 0 12px;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
   font-family: inherit;
   background: var(--tour-accent);
@@ -224,11 +241,18 @@ const TOUR_CSS = /* css */ `
   border: none;
   border-radius: 6px;
   cursor: pointer;
-  transition: opacity 150ms;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  transition: opacity 150ms, transform 160ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.inklu-tour-btn-next:hover:not(:disabled) {
-  opacity: 0.9;
+.inklu-tour-btn-next:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .inklu-tour-btn-next:hover:not(:disabled) {
+    opacity: 0.9;
+  }
 }
 
 .inklu-tour-btn-next:disabled {

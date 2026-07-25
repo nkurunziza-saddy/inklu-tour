@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import type { TourRootProps } from "../primitive";
 import {
 	TourArrow,
 	TourCard,
@@ -11,7 +12,6 @@ import {
 	TourSpotlight,
 	useTourContext,
 } from "../primitive";
-import type { TourRootProps } from "../primitive";
 
 export type { TourRootProps };
 
@@ -45,10 +45,10 @@ function TourCardContent() {
 		<div className="inklu-tour-body">
 			<div className="inklu-tour-header">
 				<div className="inklu-tour-header-row">
-					<div>
-						<div className="inklu-tour-step-counter">
-							Step {currentStepIndex + 1} of {totalSteps}
-						</div>
+					<div
+						className="inklu-tour-content-wrapper"
+						key={`title-${currentStep.id}`}
+					>
 						<div className="inklu-tour-title">
 							{currentStep.meta?.title ?? "Tour Step"}
 						</div>
@@ -58,42 +58,41 @@ function TourCardContent() {
 						<span className="inklu-tour-sr-only">Close tour</span>
 					</TourCloseButton>
 				</div>
-				{totalSteps > 1 && (
-					<div className="inklu-tour-progress">
-						<div
-							className="inklu-tour-progress-fill"
-							style={{ width: `${progress}%` }}
-						/>
-					</div>
-				)}
 			</div>
 
-			<div className="inklu-tour-content">{currentStep.meta?.content}</div>
+			<div
+				className="inklu-tour-content inklu-tour-content-wrapper"
+				key={`content-${currentStep.id}`}
+			>
+				{currentStep.meta?.content}
+			</div>
 
 			<div className="inklu-tour-footer">
-				<TourPreviousButton
-					className="inklu-tour-btn-prev"
-					disabled={currentStepIndex === 0 || isWaiting}
-				>
-					<ChevronLeftIcon />
-					Previous
-				</TourPreviousButton>
+				<div className="inklu-tour-footer-left">
+					{totalSteps > 1 && (
+						<div className="inklu-tour-step-counter">
+							{currentStepIndex + 1} of {totalSteps}
+						</div>
+					)}
+				</div>
+				<div className="inklu-tour-footer-right">
+					<TourPreviousButton
+						className="inklu-tour-btn-prev"
+						disabled={currentStepIndex === 0 || isWaiting}
+					>
+						Prev
+					</TourPreviousButton>
 
-				<TourNextButton
-					className="inklu-tour-btn-next"
-					disabled={isWaiting}
-				>
-					{isWaiting ? (
-						<span className="inklu-tour-spinner" />
-					) : currentStepIndex === totalSteps - 1 ? (
-						"Finish"
-					) : (
-						"Next"
-					)}
-					{!isWaiting && currentStepIndex < totalSteps - 1 && (
-						<ChevronRightIcon />
-					)}
-				</TourNextButton>
+					<TourNextButton className="inklu-tour-btn-next" disabled={isWaiting}>
+						{isWaiting ? (
+							<span className="inklu-tour-spinner" />
+						) : currentStepIndex === totalSteps - 1 ? (
+							"Finish"
+						) : (
+							"Next"
+						)}
+					</TourNextButton>
+				</div>
 			</div>
 		</div>
 	);
@@ -120,42 +119,4 @@ function CloseIcon() {
 	);
 }
 
-function ChevronLeftIcon() {
-	return (
-		<svg
-			width="14"
-			height="14"
-			viewBox="0 0 15 15"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-			style={{ marginLeft: -4 }}
-		>
-			<path
-				d="M8.84182 3.13514C9.04327 3.32401 9.05348 3.64042 8.86462 3.84188L5.43521 7.49991L8.86462 11.1579C9.05348 11.3594 9.04327 11.6758 8.84182 11.8647C8.64036 12.0535 8.32394 12.0433 8.13508 11.8419L4.38508 7.84188C4.20477 7.64955 4.20477 7.35027 4.38508 7.15794L8.13508 3.15794C8.32394 2.95648 8.64036 2.94628 8.84182 3.13514Z"
-				fill="currentColor"
-				fillRule="evenodd"
-				clipRule="evenodd"
-			/>
-		</svg>
-	);
-}
 
-function ChevronRightIcon() {
-	return (
-		<svg
-			width="14"
-			height="14"
-			viewBox="0 0 15 15"
-			fill="none"
-			xmlns="http://www.w3.org/2000/svg"
-			style={{ marginRight: -2, opacity: 0.8 }}
-		>
-			<path
-				d="M6.1584 3.13508C6.35985 2.94621 6.67627 2.95642 6.86514 3.15788L10.6151 7.15788C10.7954 7.3502 10.7954 7.64949 10.6151 7.84182L6.86514 11.8418C6.67627 12.0433 6.35985 12.0535 6.1584 11.8646C5.95694 11.6757 5.94673 11.3593 6.1356 11.1579L9.565 7.49985L6.1356 3.84182C5.94673 3.64036 5.95694 3.32394 6.1584 3.13508Z"
-				fill="currentColor"
-				fillRule="evenodd"
-				clipRule="evenodd"
-			/>
-		</svg>
-	);
-}

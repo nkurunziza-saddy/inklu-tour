@@ -48,7 +48,7 @@ export function useTourTarget(
 		let cachedEls: HTMLElement[] | null = null;
 
 		function checkElements() {
-			if (cachedEls && cachedEls.every(el => document.body.contains(el))) {
+			if (cachedEls && cachedEls.every((el) => document.body.contains(el))) {
 				return cachedEls.filter((el) => {
 					const r = el.getBoundingClientRect();
 					return (

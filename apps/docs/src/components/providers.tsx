@@ -1,6 +1,6 @@
 "use client";
 
-import { TourProvider, type TourConfig } from "@inklu/tour";
+import { type TourConfig, TourProvider } from "@inklu/tour";
 
 const tours: TourConfig[] = [
 	{

@@ -3,11 +3,13 @@
 import * as React from "react";
 import type { Rect, TourConfig, TourStep } from "./types";
 
-export const TOUR_ANIMATION_DURATION = 300;
+export const TOUR_ANIMATION_DURATION = 250;
+export const TOUR_EXIT_DURATION = 150;
 
 export interface TourContextValue {
 	tour: TourConfig | null;
 	open: boolean;
+	isAnimatingExit: boolean;
 	currentStepIndex: number;
 	currentStep: TourStep | null;
 	totalSteps: number;
@@ -15,6 +17,8 @@ export interface TourContextValue {
 	isWaiting: boolean;
 	rects: Rect[];
 	rectsStepId: string | null;
+	skipAnimation: boolean;
+	reducedMotion: boolean;
 
 	next: () => void;
 	previous: () => void;

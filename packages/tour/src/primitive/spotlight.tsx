@@ -12,7 +12,7 @@ export function Spotlight({
 	strokeWidth = 2,
 	strokeOpacity = 0.8,
 	...props
-}: React.SVGProps<SVGSVGElement> & { 
+}: React.SVGProps<SVGSVGElement> & {
 	padding?: number;
 	fill?: string;
 	maskOpacity?: number;
@@ -20,13 +20,20 @@ export function Spotlight({
 	strokeWidth?: number | string;
 	strokeOpacity?: number;
 }) {
-	const { rects, isWaiting, currentStep } = useTourContext();
+	const {
+		rects,
+		isWaiting,
+		currentStep,
+		skipAnimation,
+		isAnimatingExit,
+		reducedMotion,
+	} = useTourContext();
 	const [mounted, setMounted] = React.useState(false);
 	const [isTransitioning, setIsTransitioning] = React.useState(false);
 	const prevStepId = React.useRef(currentStep?.id);
 
 	if (currentStep?.id !== prevStepId.current) {
-		setIsTransitioning(true);
+		setIsTransitioning(!skipAnimation);
 		prevStepId.current = currentStep?.id;
 	}
 
@@ -36,17 +43,19 @@ export function Spotlight({
 		if (isTransitioning) {
 			const t = setTimeout(
 				() => setIsTransitioning(false),
-				TOUR_ANIMATION_DURATION,
+				skipAnimation ? 0 : TOUR_ANIMATION_DURATION,
 			);
 			return () => clearTimeout(t);
 		}
-	}, [isTransitioning]);
+	}, [isTransitioning, skipAnimation]);
 
 	if (!mounted) return null;
 
-	const transitionStyle = isTransitioning
-		? `all ${TOUR_ANIMATION_DURATION}ms cubic-bezier(0.22, 1, 0.36, 1)`
-		: "none";
+	const transitionDuration = skipAnimation ? 0 : TOUR_ANIMATION_DURATION;
+	const transitionStyle =
+		isTransitioning && !reducedMotion
+			? `x ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1), y ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1), width ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1), height ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1), rx ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1)`
+			: "none";
 
 	return createPortal(
 		<svg
@@ -58,8 +67,8 @@ export function Spotlight({
 				height: "100%",
 				pointerEvents: "none",
 				zIndex: 9998,
-				opacity: isWaiting ? 0 : 1,
-				transition: `opacity ${TOUR_ANIMATION_DURATION}ms`,
+				opacity: isWaiting || isAnimatingExit ? 0 : 1,
+				transition: `opacity ${isAnimatingExit ? 150 : transitionDuration}ms ease-out`,
 				...style,
 			}}
 			data-state={isWaiting ? "waiting" : "found"}

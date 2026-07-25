@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { TourContext } from "./context";
+import { TOUR_EXIT_DURATION, TourContext } from "./context";
 import type { TourConfig } from "./types";
 import { useTourTarget } from "./use-target";
 
@@ -34,6 +34,33 @@ export function Root({
 }: TourRootProps) {
 	const steps = tour?.steps ?? [];
 	const currentStep = steps[stepIndex] ?? null;
+
+	const [mounted, setMounted] = React.useState(open);
+	const [isAnimatingExit, setIsAnimatingExit] = React.useState(false);
+	const [skipAnimation, setSkipAnimation] = React.useState(false);
+	const [reducedMotion, setReducedMotion] = React.useState(false);
+
+	React.useEffect(() => {
+		const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+		setReducedMotion(mql.matches);
+		const listener = (e: MediaQueryListEvent) => setReducedMotion(e.matches);
+		mql.addEventListener("change", listener);
+		return () => mql.removeEventListener("change", listener);
+	}, []);
+
+	React.useEffect(() => {
+		if (open) {
+			setMounted(true);
+			setIsAnimatingExit(false);
+		} else if (mounted) {
+			setIsAnimatingExit(true);
+			const t = setTimeout(() => {
+				setMounted(false);
+				setIsAnimatingExit(false);
+			}, TOUR_EXIT_DURATION);
+			return () => clearTimeout(t);
+		}
+	}, [open, mounted]);
 
 	const handleNext = React.useCallback(() => {
 		if (stepIndex < steps.length - 1) {
@@ -78,23 +105,41 @@ export function Root({
 		if (!open) return;
 		const handleKeyDown = (e: KeyboardEvent) => {
 			if (e.key === "Escape") handlersRef.current.handleClose();
-			else if (e.key === "ArrowRight") handlersRef.current.handleNext();
-			else if (e.key === "ArrowLeft") handlersRef.current.handlePrevious();
+			else if (e.key === "ArrowRight") {
+				setSkipAnimation(true);
+				handlersRef.current.handleNext();
+			} else if (e.key === "ArrowLeft") {
+				setSkipAnimation(true);
+				handlersRef.current.handlePrevious();
+			}
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, [open]);
 
+	React.useEffect(() => {
+		if (skipAnimation) {
+			requestAnimationFrame(() => {
+				requestAnimationFrame(() => {
+					setSkipAnimation(false);
+				});
+			});
+		}
+	}, [stepIndex, skipAnimation]);
+
 	const contextValue = React.useMemo(
 		() => ({
 			tour,
 			open,
+			isAnimatingExit,
 			currentStepIndex: stepIndex,
 			currentStep,
 			totalSteps: steps.length,
 			isWaiting,
 			rects,
 			rectsStepId,
+			skipAnimation,
+			reducedMotion,
 			next: handleNext,
 			previous: handlePrevious,
 			close: handleClose,
@@ -103,12 +148,15 @@ export function Root({
 		[
 			tour,
 			open,
+			isAnimatingExit,
 			stepIndex,
 			currentStep,
 			steps.length,
 			isWaiting,
 			rects,
 			rectsStepId,
+			skipAnimation,
+			reducedMotion,
 			handleNext,
 			handlePrevious,
 			handleClose,
@@ -116,7 +164,7 @@ export function Root({
 		],
 	);
 
-	if (!open) return null;
+	if (!mounted) return null;
 
 	return (
 		<TourContext.Provider value={contextValue}>{children}</TourContext.Provider>

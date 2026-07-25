@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Tourkit — product tours for your app</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0A0A0C;
+    --bg-elev:#141417;
+    --line:#232327;
+    --text:#EDEDEF;
+    --dim:#8A8A92;
+    --accent:#7C8CFF;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-weight:500;-webkit-font-smoothing:antialiased;}
+  a{color:inherit;text-decoration:none;}
+
+  nav{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:22px 40px;
+  }
+  .nav-left{display:flex;align-items:center;gap:10px;}
+  .toggle{width:38px;height:20px;background:#1C1C20;border-radius:100px;position:relative;}
+  .toggle::after{content:'';position:absolute;top:2px;left:2px;width:16px;height:16px;background:var(--text);border-radius:50%;}
+  .nav-center{display:flex;gap:30px;font-size:14px;color:var(--dim);}
+  .nav-center a.active{color:var(--text);font-weight:600;}
+  .nav-center a:hover{color:var(--text);}
+  .nav-right{display:flex;align-items:center;gap:6px;font-size:13px;color:var(--dim);border:1px solid var(--line);padding:7px 13px;border-radius:100px;}
+
+  .hero{text-align:center;padding:70px 24px 56px;}
+  h1{font-size:clamp(30px,4.2vw,44px);font-weight:600;letter-spacing:-0.02em;line-height:1.18;max-width:720px;margin:0 auto;}
+  .hero-sub{margin-top:16px;font-size:15.5px;color:var(--dim);font-weight:400;max-width:520px;margin-left:auto;margin-right:auto;line-height:1.55;}
+
+  .install{
+    margin:30px auto 0;
+    display:inline-flex;align-items:center;gap:14px;
+    background:var(--bg-elev);border:1px solid var(--line);
+    padding:12px 18px;border-radius:100px;
+    font-family:'JetBrains Mono',monospace;font-size:13.5px;
+  }
+  .install .dollar{color:var(--dim);}
+  .install .pkg{color:var(--accent);}
+  .install button{
+    background:none;border:none;color:var(--dim);cursor:pointer;
+    display:flex;align-items:center;
+  }
+  .install button:hover{color:var(--text);}
+
+  /* MAIN GRID — mirrors reference: one large panel + smaller grid */
+  .stage{
+    display:grid;grid-template-columns:1.15fr 1fr;
+    gap:0;
+    margin:52px 40px 0;
+    border:1px solid var(--line);
+  }
+
+  /* LEFT: live tour demo */
+  .demo-panel{
+    background:var(--bg-elev);
+    padding:0;
+    position:relative;
+    border-right:1px solid var(--line);
+    min-height:560px;
+    display:flex;flex-direction:column;
+  }
+  .demo-toolbar{
+    padding:16px 20px;border-bottom:1px solid var(--line);
+    font-family:'JetBrains Mono',monospace;font-size:11.5px;color:var(--dim);
+    display:flex;justify-content:space-between;
+  }
+  .fake-app{
+    flex:1;position:relative;padding:28px;
+    display:grid;grid-template-columns:120px 1fr;gap:20px;
+  }
+  .fake-sidebar{display:flex;flex-direction:column;gap:8px;}
+  .fake-side-item{
+    padding:9px 12px;border-radius:6px;font-size:12px;color:var(--dim);
+    background:#1A1A1E;
+  }
+  .fake-side-item.hi{color:var(--text);}
+  .fake-main{display:flex;flex-direction:column;gap:14px;}
+  .fake-topbar{display:flex;justify-content:space-between;align-items:center;}
+  .fake-title{font-size:13px;color:var(--dim);}
+  .fake-btn{
+    background:#1A1A1E;color:var(--text);font-size:12px;padding:8px 14px;border-radius:6px;
+  }
+  .fake-chart{
+    flex:1;background:#1A1A1E;border-radius:8px;
+    display:flex;align-items:flex-end;gap:6px;padding:16px;
+  }
+  .fake-bar{flex:1;background:#2A2A30;border-radius:3px 3px 0 0;}
+
+  /* spotlight ring + tooltip */
+  .spot-ring{
+    position:absolute;border-radius:10px;
+    border:2px solid var(--accent);
+    box-shadow:0 0 0 4000px rgba(0,0,0,0.62);
+    transition:all .4s cubic-bezier(.4,0,.2,1);
+    pointer-events:none;
+  }
+  .tour-tip{
+    position:absolute;
+    background:#1A1A1F;border:1px solid var(--line);
+    border-radius:10px;padding:16px 18px;width:220px;
+    transition:all .4s cubic-bezier(.4,0,.2,1);
+    box-shadow:0 20px 40px -12px rgba(0,0,0,.5);
+  }
+  .tour-tip .step-count{
+    font-family:'JetBrains Mono',monospace;font-size:10.5px;color:var(--accent);
+    letter-spacing:.06em;margin-bottom:8px;
+  }
+  .tour-tip .step-title{font-size:14px;font-weight:600;margin-bottom:5px;}
+  .tour-tip .step-desc{font-size:12px;color:var(--dim);font-weight:400;line-height:1.5;margin-bottom:14px;}
+  .tour-tip .step-nav{display:flex;justify-content:space-between;align-items:center;}
+  .tour-tip .dots{display:flex;gap:5px;}
+  .tour-tip .dot{width:5px;height:5px;border-radius:50%;background:var(--line);}
+  .tour-tip .dot.on{background:var(--accent);}
+  .tour-tip .btn-next{
+    background:var(--accent);color:#0A0A0C;font-size:11.5px;font-weight:600;
+    padding:6px 12px;border-radius:100px;
+  }
+  .tour-tip .btn-skip{font-size:11px;color:var(--dim);}
+
+  /* RIGHT: style variants grid, matches reference's numbered small cards */
+  .style-grid{
+    display:grid;grid-template-columns:1fr 1fr;
+  }
+  .style-card{
+    border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+    padding:20px;min-height:280px;
+    display:flex;flex-direction:column;
+  }
+  .style-card:nth-child(2n){border-right:none;}
+  .style-top{display:flex;justify-content:space-between;font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim);margin-bottom:16px;}
+  .style-top b{color:var(--card-color);font-weight:600;}
+  .style-preview{
+    flex:1;background:#111114;border-radius:8px;
+    display:flex;align-items:center;justify-content:center;position:relative;
+    min-height:110px;margin-bottom:14px;
+  }
+  .style-name{font-size:13.5px;font-weight:600;}
+  .style-desc{font-size:11.5px;color:var(--dim);font-weight:400;margin-top:4px;line-height:1.4;}
+
+  /* mini preview shapes per style */
+  .mini-tooltip{width:70px;height:34px;background:#1D1D22;border:1px solid var(--card-color);border-radius:6px;}
+  .mini-spotlight{width:44px;height:44px;border-radius:50%;border:2px solid var(--card-color);box-shadow:0 0 0 60px rgba(0,0,0,0.5);}
+  .mini-modal{width:90px;height:56px;background:#1D1D22;border:1px solid var(--card-color);border-radius:8px;box-shadow:0 8px 20px rgba(0,0,0,.4);}
+  .mini-hotspot{width:14px;height:14px;border-radius:50%;background:var(--card-color);position:relative;}
+  .mini-hotspot::before{content:'';position:absolute;inset:-8px;border-radius:50%;border:1.5px solid var(--card-color);animation:ping 1.6s ease-out infinite;}
+  @keyframes ping{0%{transform:scale(.6);opacity:1}100%{transform:scale(2.2);opacity:0}}
+  .mini-checklist{display:flex;flex-direction:column;gap:6px;}
+  .mini-check-row{display:flex;align-items:center;gap:6px;font-size:10px;color:var(--dim);}
+  .mini-check-dot{width:12px;height:12px;border-radius:3px;border:1.5px solid var(--card-color);}
+  .mini-check-dot.done{background:var(--card-color);}
+  .mini-beacon{width:10px;height:10px;border-radius:50%;background:var(--card-color);box-shadow:0 0 0 5px rgba(255,255,255,.05), 0 0 16px 2px var(--card-color);}
+
+  /* bottom floating pill toggle, matches reference */
+  .pill-bar{
+    position:sticky;bottom:24px;
+    display:flex;justify-content:center;margin-top:36px;
+  }
+  .pill{
+    display:flex;gap:4px;background:#151518;border:1px solid var(--line);
+    padding:5px;border-radius:100px;
+  }
+  .pill button{
+    font-size:13px;font-weight:600;color:var(--dim);padding:8px 16px;border-radius:100px;border:none;background:none;cursor:pointer;
+    display:flex;align-items:center;gap:6px;
+  }
+  .pill button.on{background:#232327;color:var(--text);}
+
+  footer{
+    padding:28px 40px;border-top:1px solid var(--line);margin-top:60px;
+    display:flex;justify-content:space-between;font-size:12.5px;color:var(--dim);
+    font-family:'JetBrains Mono',monospace;
+  }
+
+  @media(max-width:900px){
+    .stage{grid-template-columns:1fr;margin:40px 20px 0;}
+    .demo-panel{border-right:none;border-bottom:1px solid var(--line);min-height:460px;}
+    .fake-app{grid-template-columns:1fr;}
+    .fake-sidebar{flex-direction:row;flex-wrap:wrap;}
+    .style-grid{grid-template-columns:1fr;}
+    .style-card{border-right:none;}
+    nav{padding:18px 20px;}
+    .nav-center{display:none;}
+    footer{padding:22px 20px;flex-direction:column;gap:6px;}
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-left"><div class="toggle"></div></div>
+  <div class="nav-center">
+    <a href="#" class="active">Home</a>
+    <a href="#">Docs</a>
+    <a href="#">Changelog</a>
+  </div>
+  <div class="nav-right">★ GitHub 412</div>
+</nav>
+
+<section class="hero">
+  <h1>Product tours that live in your codebase.</h1>
+  <p class="hero-sub">Define steps once, in React. Tourkit handles the spotlight, the positioning, and the exit — no third-party overlay script.</p>
+  <div class="install">
+    <span class="dollar">$</span>
+    <span class="pkg">npm i @tourkit/react</span>
+    <button onclick="copyInstall()">⧉</button>
+  </div>
+</section>
+
+<div class="stage">
+  <div class="demo-panel">
+    <div class="demo-toolbar">
+      <span>LIVE PREVIEW</span>
+      <span id="stepLabel">Step 1 of 4</span>
+    </div>
+    <div class="fake-app" id="fakeApp">
+      <div class="fake-sidebar">
+        <div class="fake-side-item hi" id="tgt-nav">Dashboard</div>
+        <div class="fake-side-item">Projects</div>
+        <div class="fake-side-item">Reports</div>
+        <div class="fake-side-item">Settings</div>
+      </div>
+      <div class="fake-main">
+        <div class="fake-topbar">
+          <span class="fake-title">Overview</span>
+          <span class="fake-btn" id="tgt-btn">New project</span>
+        </div>
+        <div class="fake-chart" id="tgt-chart"></div>
+      </div>
+
+      <div class="spot-ring" id="spotRing"></div>
+      <div class="tour-tip" id="tourTip">
+        <div class="step-count">STEP <span id="stepNum">1</span> / 4</div>
+        <div class="step-title" id="stepTitle">This is your workspace</div>
+        <div class="step-desc" id="stepDesc">Everything you build lives here, organized by project.</div>
+        <div class="step-nav">
+          <div class="dots" id="dots"></div>
+          <span class="btn-next" onclick="nextStep()">Next →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="style-grid">
+    <div class="style-card" style="--card-color:#7C8CFF">
+      <div class="style-top"><span>01</span><b>TOOLTIP</b></div>
+      <div class="style-preview"><div class="mini-tooltip"></div></div>
+      <div class="style-name">Anchored tooltip</div>
+      <div class="style-desc">Points at one element, moves with scroll.</div>
+    </div>
+    <div class="style-card" style="--card-color:#FF7C7C">
+      <div class="style-top"><span>02</span><b>SPOTLIGHT</b></div>
+      <div class="style-preview"><div class="mini-spotlight"></div></div>
+      <div class="style-name">Dimmed spotlight</div>
+      <div class="style-desc">Darkens everything but the target.</div>
+    </div>
+    <div class="style-card" style="--card-color:#4FD8C4">
+      <div class="style-top"><span>03</span><b>MODAL</b></div>
+      <div class="style-preview"><div class="mini-modal"></div></div>
+      <div class="style-name">Centered modal</div>
+      <div class="style-desc">For intros with no single anchor.</div>
+    </div>
+    <div class="style-card" style="--card-color:#E8B84F">
+      <div class="style-top"><span>04</span><b>HOTSPOT</b></div>
+      <div class="style-preview"><div class="mini-hotspot"></div></div>
+      <div class="style-name">Pulsing hotspot</div>
+      <div class="style-desc">A quiet nudge, no forced tooltip.</div>
+    </div>
+    <div class="style-card" style="--card-color:#C48CFF">
+      <div class="style-top"><span>05</span><b>CHECKLIST</b></div>
+      <div class="style-preview">
+        <div class="mini-checklist">
+          <div class="mini-check-row"><div class="mini-check-dot done"></div> Connect account</div>
+          <div class="mini-check-row"><div class="mini-check-dot done"></div> Invite team</div>
+          <div class="mini-check-row"><div class="mini-check-dot"></div> Create first project</div>
+        </div>
+      </div>
+      <div class="style-name">Persistent checklist</div>
+      <div class="style-desc">Self-paced, dismissible, resumable.</div>
+    </div>
+    <div class="style-card" style="--card-color:#5FD97C">
+      <div class="style-top"><span>06</span><b>BEACON</b></div>
+      <div class="style-preview"><div class="mini-beacon"></div></div>
+      <div class="style-name">Passive beacon</div>
+      <div class="style-desc">Marks a feature until it's clicked once.</div>
+    </div>
+  </div>
+</div>
+
+<div class="pill-bar">
+  <div class="pill">
+    <button class="on" id="btnSpot" onclick="setMode('spot')">◐ Spotlight</button>
+    <button id="btnRing" onclick="setMode('ring')">◯ Ring only</button>
+  </div>
+</div>
+
+<footer>
+  <span>© 2026 Tourkit</span>
+  <span>React 18+ · zero runtime deps</span>
+</footer>
+
+<script>
+  const steps = [
+    {target:'tgt-nav', title:'This is your workspace', desc:'Everything you build lives here, organized by project.'},
+    {target:'tgt-btn', title:'Start something new', desc:'One click creates a project with sane defaults.'},
+    {target:'tgt-chart', title:'Live activity', desc:'Updates as your team works, no refresh needed.'},
+    {target:'tgt-nav', title:'Come back anytime', desc:'Tours only run once — this one won\\'t show again.'},
+  ];
+  let current = 0;
+  let mode = 'spot';
+
+  function positionFor(el, app){
+    const r = el.getBoundingClientRect();
+    const a = app.getBoundingClientRect();
+    return { top:r.top-a.top, left:r.left-a.left, width:r.width, height:r.height };
+  }
+
+  function render(){
+    const app = document.getElementById('fakeApp');
+    const step = steps[current];
+    const el = document.getElementById(step.target);
+    const pos = positionFor(el, app);
+    const ring = document.getElementById('spotRing');
+    const pad = 6;
+    ring.style.top = (pos.top-pad)+'px';
+    ring.style.left = (pos.left-pad)+'px';
+    ring.style.width = (pos.width+pad*2)+'px';
+    ring.style.height = (pos.height+pad*2)+'px';
+    ring.style.boxShadow = mode==='spot' ? '0 0 0 4000px rgba(0,0,0,0.62)' : 'none';
+
+    const tip = document.getElementById('tourTip');
+    let top = pos.top + pos.height + 14;
+    let left = pos.left;
+    if(top + 140 > app.clientHeight){ top = pos.top - 150; }
+    tip.style.top = top+'px';
+    tip.style.left = left+'px';
+
+    document.getElementById('stepNum').textContent = current+1;
+    document.getElementById('stepTitle').textContent = step.title;
+    document.getElementById('stepDesc').textContent = step.desc;
+    document.getElementById('stepLabel').textContent = `Step ${current+1} of ${steps.length}`;
+
+    const dots = document.getElementById('dots');
+    dots.innerHTML='';
+    steps.forEach((s,i)=>{
+      const d = document.createElement('div');
+      d.className = 'dot' + (i===current?' on':'');
+      dots.appendChild(d);
+    });
+  }
+
+  function nextStep(){ current = (current+1) % steps.length; render(); }
+  function setMode(m){
+    mode = m;
+    document.getElementById('btnSpot').classList.toggle('on', m==='spot');
+    document.getElementById('btnRing').classList.toggle('on', m==='ring');
+    render();
+  }
+  function copyInstall(){ navigator.clipboard.writeText('npm i @tourkit/react'); }
+
+  window.addEventListener('load', render);
+  window.addEventListener('resize', render);
+</script>
+
+</body>
+</html>
