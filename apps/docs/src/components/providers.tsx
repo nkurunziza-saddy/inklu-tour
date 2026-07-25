@@ -4,36 +4,33 @@ import { type TourConfig, TourProvider } from "@inklu/tour";
 
 const tours: TourConfig[] = [
 	{
-		id: "demo-tour",
+		id: "hero-tour",
 		steps: [
 			{
 				id: "step-1",
-				target: { selector: ".tour-step-1" },
-				placement: "bottom-center",
+				target: { selector: ".tgt-workspace" },
+				placement: "right-center",
 				meta: {
-					title: "Welcome to Inklu Docs",
-					content:
-						"This is a demonstration of the highly polished, headless @inklu/tour package running inside a Next.js application.",
+					title: "This is your workspace",
+					content: "Everything you build lives here, organized by project.",
 				},
 			},
 			{
 				id: "step-2",
-				target: { selector: ".tour-step-2" },
-				placement: "right-center",
+				target: { selector: ".tgt-new-project" },
+				placement: "bottom-center",
 				meta: {
-					title: "Execute Commands",
-					content:
-						"You can copy and run these commands to start your development server locally.",
+					title: "Start something new",
+					content: "One click creates a project with sane defaults.",
 				},
 			},
 			{
 				id: "step-3",
-				target: { selector: ".tour-step-3" },
+				target: { selector: ".tgt-chart" },
 				placement: "top-center",
 				meta: {
-					title: "Start Writing",
-					content:
-						"Click this link to head over to the documentation layout and see how navigation works seamlessly with the tour.",
+					title: "Live activity",
+					content: "Updates as your team works, no refresh needed.",
 				},
 			},
 		],
