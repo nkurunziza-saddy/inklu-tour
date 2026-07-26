@@ -24,6 +24,11 @@ const TOUR_CSS = /* css */ `
   --tour-radius: 12px;
   --tour-shadow: 0 8px 32px rgba(0, 0, 0, 0.06), 0 2px 8px rgba(0, 0, 0, 0.04);
   --tour-width: 320px;
+  --tour-open-dur: 250ms;
+  --tour-close-dur: 150ms;
+  --tour-scale-open: 1;
+  --tour-scale-close: 0.96;
+  --tour-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 .dark,
@@ -61,29 +66,45 @@ const TOUR_CSS = /* css */ `
   line-height: 1.5;
   outline: none;
   opacity: 0;
-  transform: scale(1) translateY(0);
-  transition: opacity 150ms ease-out;
+  scale: var(--tour-scale-close);
+  transform: scale(var(--tour-scale-close));
+  pointer-events: none;
+  will-change: transform, scale, translate, opacity, width, height;
+  transition:
+    opacity   var(--tour-close-dur) var(--tour-ease),
+    transform var(--tour-close-dur) var(--tour-ease),
+    scale     var(--tour-close-dur) var(--tour-ease),
+    width     var(--tour-open-dur)  var(--tour-ease),
+    height    var(--tour-open-dur)  var(--tour-ease);
 }
 
 .inklu-tour-card[data-open="true"] {
   opacity: 1;
-  transform: scale(1) translateY(0);
-  transition: opacity 250ms cubic-bezier(0.23, 1, 0.32, 1), transform 250ms cubic-bezier(0.23, 1, 0.32, 1);
+  scale: var(--tour-scale-open);
+  transform: scale(var(--tour-scale-open));
+  pointer-events: auto;
+  transition:
+    opacity   var(--tour-open-dur) var(--tour-ease),
+    transform var(--tour-open-dur) var(--tour-ease),
+    scale     var(--tour-open-dur) var(--tour-ease),
+    width     var(--tour-open-dur) var(--tour-ease),
+    height    var(--tour-open-dur) var(--tour-ease);
 }
 
 @starting-style {
   .inklu-tour-card[data-open="true"] {
     opacity: 0;
-    transform: scale(0.96) translateY(4px);
+    scale: var(--tour-scale-close);
+    transform: scale(var(--tour-scale-close)) translateY(4px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .inklu-tour-card {
-    transition: opacity 150ms ease-out;
+    transition: opacity 150ms ease-out !important;
   }
   .inklu-tour-card[data-open="true"] {
-    transition: opacity 250ms ease-out;
+    transition: opacity 250ms ease-out !important;
   }
 }
 
@@ -166,7 +187,7 @@ const TOUR_CSS = /* css */ `
 .inklu-tour-content-wrapper {
   opacity: 1;
   filter: blur(0px);
-  transition: opacity 150ms cubic-bezier(0.23, 1, 0.32, 1), filter 150ms cubic-bezier(0.23, 1, 0.32, 1);
+  transition: opacity 150ms var(--tour-ease), filter 150ms var(--tour-ease);
 }
 
 @starting-style {

@@ -54,7 +54,7 @@ export function Spotlight({
 	const transitionDuration = skipAnimation ? 0 : TOUR_ANIMATION_DURATION;
 	const transitionStyle =
 		isTransitioning && !reducedMotion
-			? `x ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1), y ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1), width ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1), height ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1), rx ${transitionDuration}ms cubic-bezier(0.77, 0, 0.175, 1)`
+			? `x ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), y ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), width ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), height ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), rx ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`
 			: "none";
 
 	return createPortal(
