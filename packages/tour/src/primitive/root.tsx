@@ -2,10 +2,10 @@
 
 import * as React from "react";
 import { TOUR_EXIT_DURATION, TourContext } from "./context";
-import type { TourConfig } from "./types";
+import type { TourConfig, TourConfigOptions } from "./types";
 import { useTourTarget } from "./use-target";
 
-export interface TourRootProps {
+export interface TourRootProps extends TourConfigOptions {
 	tour: TourConfig | null;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
@@ -30,8 +30,28 @@ export function Root({
 	onTargetWaiting,
 	onTargetFound,
 	onTargetTimeout,
+	closeOnOutsideClick: propCloseOnOutsideClick,
+	closeOnOverlayClick: propCloseOnOverlayClick,
+	keyboardNavigation: propKeyboardNavigation,
+	dismissOnEscape: propDismissOnEscape,
+	showSpotlight: propShowSpotlight,
+	spotlightPadding: propSpotlightPadding,
+	maskOpacity: propMaskOpacity,
 	children,
 }: TourRootProps) {
+	const closeOnOutsideClick =
+		propCloseOnOutsideClick ?? tour?.closeOnOutsideClick ?? false;
+	const closeOnOverlayClick =
+		propCloseOnOverlayClick ?? tour?.closeOnOverlayClick ?? false;
+	const keyboardNavigation =
+		propKeyboardNavigation ?? tour?.keyboardNavigation ?? true;
+	const dismissOnEscape =
+		propDismissOnEscape ?? tour?.dismissOnEscape ?? true;
+	const showSpotlight = propShowSpotlight ?? tour?.showSpotlight ?? true;
+	const spotlightPadding =
+		propSpotlightPadding ?? tour?.spotlightPadding ?? 8;
+	const maskOpacity = propMaskOpacity ?? tour?.maskOpacity ?? 0.6;
+
 	const steps = tour?.steps ?? [];
 	const currentStep = steps[stepIndex] ?? null;
 
@@ -104,18 +124,39 @@ export function Root({
 	React.useEffect(() => {
 		if (!open) return;
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape") handlersRef.current.handleClose();
-			else if (e.key === "ArrowRight") {
+			if (e.key === "Escape" && dismissOnEscape) {
+				handlersRef.current.handleClose();
+			} else if (keyboardNavigation && e.key === "ArrowRight") {
 				setSkipAnimation(true);
 				handlersRef.current.handleNext();
-			} else if (e.key === "ArrowLeft") {
+			} else if (keyboardNavigation && e.key === "ArrowLeft") {
 				setSkipAnimation(true);
 				handlersRef.current.handlePrevious();
 			}
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [open]);
+	}, [open, dismissOnEscape, keyboardNavigation]);
+
+	React.useEffect(() => {
+		if (!open || !closeOnOutsideClick) return;
+		const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+			const targetNode = e.target as Node | null;
+			if (!targetNode) return;
+			const cardEl = document.querySelector(".inklu-tour-card");
+			if (cardEl && cardEl.contains(targetNode)) return;
+			handlersRef.current.handleClose();
+		};
+		const timer = setTimeout(() => {
+			document.addEventListener("mousedown", handleOutsideClick);
+			document.addEventListener("touchstart", handleOutsideClick);
+		}, 50);
+		return () => {
+			clearTimeout(timer);
+			document.removeEventListener("mousedown", handleOutsideClick);
+			document.removeEventListener("touchstart", handleOutsideClick);
+		};
+	}, [open, closeOnOutsideClick]);
 
 	React.useEffect(() => {
 		if (skipAnimation) {
@@ -140,6 +181,13 @@ export function Root({
 			rectsStepId,
 			skipAnimation,
 			reducedMotion,
+			closeOnOutsideClick,
+			closeOnOverlayClick,
+			keyboardNavigation,
+			dismissOnEscape,
+			showSpotlight,
+			spotlightPadding,
+			maskOpacity,
 			next: handleNext,
 			previous: handlePrevious,
 			close: handleClose,
@@ -157,6 +205,13 @@ export function Root({
 			rectsStepId,
 			skipAnimation,
 			reducedMotion,
+			closeOnOutsideClick,
+			closeOnOverlayClick,
+			keyboardNavigation,
+			dismissOnEscape,
+			showSpotlight,
+			spotlightPadding,
+			maskOpacity,
 			handleNext,
 			handlePrevious,
 			handleClose,

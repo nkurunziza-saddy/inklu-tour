@@ -20,6 +20,15 @@ export interface TourContextValue {
 	skipAnimation: boolean;
 	reducedMotion: boolean;
 
+	// Configuration options
+	closeOnOutsideClick?: boolean;
+	closeOnOverlayClick?: boolean;
+	keyboardNavigation?: boolean;
+	dismissOnEscape?: boolean;
+	showSpotlight?: boolean;
+	spotlightPadding?: number;
+	maskOpacity?: number;
+
 	next: () => void;
 	previous: () => void;
 	close: () => void;

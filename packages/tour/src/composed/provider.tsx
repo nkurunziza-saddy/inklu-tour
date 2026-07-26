@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import type { TourConfig } from "../primitive/types";
+import type { TourConfig, TourConfigOptions } from "../primitive/types";
 import { injectTourStyles } from "./styles";
 import { Tour } from "./tour";
 
-export interface TourProviderProps {
+export interface TourProviderProps extends TourConfigOptions {
 	tours: TourConfig[];
 	/** Called when a step has a `route` property and becomes active. Wire your router here (e.g. `router.push`). */
 	onNavigate?: (route: string) => void;
@@ -21,6 +21,10 @@ export interface UseTourReturn {
 	activeTourId: string | null;
 	/** Whether a tour is currently open. */
 	isActive: boolean;
+	/** Current active configuration options */
+	options: TourConfigOptions;
+	/** Update specific tour configuration options dynamically */
+	updateOptions: (newOptions: Partial<TourConfigOptions>) => void;
 }
 
 const TourManagerContext = React.createContext<UseTourReturn | null>(null);
@@ -29,7 +33,7 @@ const TourManagerContext = React.createContext<UseTourReturn | null>(null);
  * Access the tour manager from anywhere inside `<TourProvider>`.
  *
  * ```tsx
- * const { startTour } = useTour();
+ * const { startTour, updateOptions } = useTour();
  * <button onClick={() => startTour("my-tour")}>Take a Tour</button>
  * ```
  */
@@ -52,6 +56,13 @@ export function TourProvider({
 	tours,
 	onNavigate,
 	children,
+	closeOnOutsideClick = false,
+	closeOnOverlayClick = false,
+	keyboardNavigation = true,
+	dismissOnEscape = true,
+	showSpotlight = true,
+	spotlightPadding = 8,
+	maskOpacity = 0.6,
 }: TourProviderProps) {
 	React.useEffect(() => {
 		injectTourStyles();
@@ -60,6 +71,23 @@ export function TourProvider({
 	const [activeTourId, setActiveTourId] = React.useState<string | null>(null);
 	const [open, setOpen] = React.useState(false);
 	const [stepIndex, setStepIndex] = React.useState(0);
+
+	const [options, setOptionsState] = React.useState<TourConfigOptions>({
+		closeOnOutsideClick,
+		closeOnOverlayClick,
+		keyboardNavigation,
+		dismissOnEscape,
+		showSpotlight,
+		spotlightPadding,
+		maskOpacity,
+	});
+
+	const updateOptions = React.useCallback(
+		(newOptions: Partial<TourConfigOptions>) => {
+			setOptionsState((prev) => ({ ...prev, ...newOptions }));
+		},
+		[],
+	);
 
 	const activeTour = React.useMemo(
 		() => tours.find((t) => t.id === activeTourId) ?? null,
@@ -103,8 +131,10 @@ export function TourProvider({
 			stopTour,
 			activeTourId,
 			isActive: open,
+			options,
+			updateOptions,
 		}),
-		[startTour, stopTour, activeTourId, open],
+		[startTour, stopTour, activeTourId, open, options, updateOptions],
 	);
 
 	return (
@@ -118,6 +148,7 @@ export function TourProvider({
 				onStepChange={handleStepChange}
 				onDismiss={stopTour}
 				onComplete={stopTour}
+				{...options}
 			/>
 		</TourManagerContext.Provider>
 	);

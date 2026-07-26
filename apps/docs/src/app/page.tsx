@@ -10,7 +10,7 @@ import {
 	SiteLayout,
 	TextEffect,
 } from "@inklu/docs";
-import { useTour } from "@inklu/tour";
+import { TourSettingsMorph, useTour } from "@inklu/tour";
 import { ArrowRight, PlayCircle } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import Link from "next/link";
@@ -127,6 +127,10 @@ export default function Home() {
 						<TourStartButton />
 					</motion.div>
 				</div>
+			</div>
+
+			<div className="fixed bottom-6 right-6 z-50">
+				<TourSettingsMorph />
 			</div>
 		</SiteLayout>
 	);

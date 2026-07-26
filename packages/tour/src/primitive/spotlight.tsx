@@ -4,10 +4,10 @@ import { TOUR_ANIMATION_DURATION, useTourContext } from "./context";
 
 export function Spotlight({
 	className,
-	padding = 8,
+	padding: propPadding,
 	style,
 	fill = "black",
-	maskOpacity = 0.55,
+	maskOpacity: propMaskOpacity,
 	stroke = "currentColor",
 	strokeWidth = 2,
 	strokeOpacity = 0.8,
@@ -20,6 +20,7 @@ export function Spotlight({
 	strokeWidth?: number | string;
 	strokeOpacity?: number;
 }) {
+	const context = useTourContext();
 	const {
 		rects,
 		isWaiting,
@@ -27,7 +28,14 @@ export function Spotlight({
 		skipAnimation,
 		isAnimatingExit,
 		reducedMotion,
-	} = useTourContext();
+		close,
+	} = context;
+
+	const showSpotlight = context.showSpotlight ?? true;
+	const padding = propPadding ?? context.spotlightPadding ?? 8;
+	const maskOpacity = propMaskOpacity ?? context.maskOpacity ?? 0.6;
+	const closeOnOverlayClick = context.closeOnOverlayClick ?? false;
+
 	const [mounted, setMounted] = React.useState(false);
 	const [isTransitioning, setIsTransitioning] = React.useState(false);
 	const prevStepId = React.useRef(currentStep?.id);
@@ -49,7 +57,7 @@ export function Spotlight({
 		}
 	}, [isTransitioning, skipAnimation]);
 
-	if (!mounted) return null;
+	if (!mounted || !showSpotlight) return null;
 
 	const transitionDuration = skipAnimation ? 0 : TOUR_ANIMATION_DURATION;
 	const transitionStyle =
@@ -65,7 +73,7 @@ export function Spotlight({
 				inset: 0,
 				width: "100%",
 				height: "100%",
-				pointerEvents: "none",
+				pointerEvents: closeOnOverlayClick ? "auto" : "none",
 				zIndex: 9998,
 				opacity: isWaiting || isAnimatingExit ? 0 : 1,
 				transition: `opacity ${isAnimatingExit ? 150 : transitionDuration}ms ease-out`,
@@ -97,6 +105,13 @@ export function Spotlight({
 				fill={fill}
 				opacity={maskOpacity}
 				mask="url(#tour-spotlight-mask)"
+				style={{
+					pointerEvents: closeOnOverlayClick ? "auto" : "none",
+					cursor: closeOnOverlayClick ? "pointer" : "default",
+				}}
+				onClick={() => {
+					if (closeOnOverlayClick) close();
+				}}
 			/>
 			{rects.map((r, i) => (
 				<rect
