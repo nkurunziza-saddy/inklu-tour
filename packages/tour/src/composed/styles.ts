@@ -304,23 +304,21 @@ const TOUR_CSS = /* css */ `
 /* ── Settings Morph Panel ────────────────────────────────────────── */
 
 :root {
-  --morph-open-dur: 350ms;
-  --morph-close-dur: 250ms;
-  --morph-ease: cubic-bezier(0.34, 1.25, 0.64, 1);
+  --morph-open-dur: 250ms;
+  --morph-close-dur: 180ms;
+  --morph-ease: cubic-bezier(0.22, 1, 0.36, 1);
   --morph-close-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --morph-r-closed: 40px;
-  --morph-r-open: 16px;
-  --morph-fade-dur: 200ms;
-  --morph-slide: 32px;
-  --morph-rotate: 45deg;
-  --morph-scale: 0.97;
-  --morph-blur: 2px;
+  --morph-r-closed: 18px;
+  --morph-r-open: 14px;
+  --morph-fade-dur: 160ms;
+  --morph-slide: 12px;
+  --morph-scale: 0.98;
 }
 
 .t-morph {
   position: relative;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   border-radius: var(--morph-r-closed);
   overflow: hidden;
   background: var(--tour-bg);
@@ -334,8 +332,8 @@ const TOUR_CSS = /* css */ `
 }
 
 .t-morph[data-open="true"] {
-  width: 290px;
-  height: 330px;
+  width: 260px;
+  height: 300px;
   border-radius: var(--morph-r-open);
   transition:
     width var(--morph-open-dur) var(--morph-ease),
@@ -346,8 +344,8 @@ const TOUR_CSS = /* css */ `
 .t-morph-plus {
   position: absolute;
   inset: auto 0 0 auto;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   display: grid;
   place-items: center;
   border: 0;
@@ -357,8 +355,7 @@ const TOUR_CSS = /* css */ `
   z-index: 2;
   transition:
     opacity var(--morph-fade-dur) var(--morph-close-ease),
-    transform var(--morph-open-dur) var(--morph-close-ease),
-    filter var(--morph-fade-dur) var(--morph-close-ease);
+    transform var(--morph-open-dur) var(--morph-close-ease);
 }
 
 .t-morph-plus svg {
@@ -368,36 +365,28 @@ const TOUR_CSS = /* css */ `
 .t-morph[data-open="true"] .t-morph-plus {
   opacity: 0;
   transform: translateX(calc(-1 * var(--morph-slide)));
-  filter: blur(var(--morph-blur));
   pointer-events: none;
-}
-
-.t-morph[data-open="true"] .t-morph-plus svg {
-  transform: scale(var(--morph-scale)) rotate(var(--morph-rotate));
 }
 
 .t-morph-menu {
   position: absolute;
   inset: 0;
   opacity: 0;
-  padding: 16px;
+  padding: 14px 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   transform: translateX(var(--morph-slide)) scale(var(--morph-scale));
-  filter: blur(var(--morph-blur));
   pointer-events: none;
   font-size: 13px;
   transition:
     opacity var(--morph-fade-dur) var(--morph-close-ease),
-    transform var(--morph-open-dur) var(--morph-close-ease),
-    filter var(--morph-fade-dur) var(--morph-close-ease);
+    transform var(--morph-open-dur) var(--morph-close-ease);
 }
 
 .t-morph[data-open="true"] .t-morph-menu {
   opacity: 1;
   transform: translateX(0) scale(1);
-  filter: blur(0);
   pointer-events: auto;
 }
 
