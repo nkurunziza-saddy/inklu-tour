@@ -301,98 +301,76 @@ const TOUR_CSS = /* css */ `
   border-width: 0;
 }
 
-/* ── Settings Morph Panel ────────────────────────────────────────── */
+/* ── Settings Popover Widget ─────────────────────────────────────── */
 
 :root {
-  --morph-open-dur: 250ms;
-  --morph-close-dur: 180ms;
-  --morph-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --morph-close-ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --morph-r-closed: 18px;
-  --morph-r-open: 14px;
-  --morph-fade-dur: 160ms;
-  --morph-slide: 12px;
-  --morph-scale: 0.98;
+  --tour-popover-dur: 180ms;
+  --tour-popover-ease: cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.t-morph {
+.inklu-tour-settings-container {
   position: relative;
+  display: inline-block;
+}
+
+.inklu-tour-settings-trigger {
   width: 36px;
   height: 36px;
-  border-radius: var(--morph-r-closed);
-  overflow: hidden;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--tour-border);
+  background: var(--tour-bg);
+  color: var(--tour-fg);
+  box-shadow: var(--tour-shadow);
+  cursor: pointer;
+  outline: none;
+  transition: transform 160ms var(--tour-popover-ease), opacity 150ms ease;
+}
+
+.inklu-tour-settings-trigger:active {
+  transform: scale(0.94);
+}
+
+.inklu-tour-settings-panel {
+  position: absolute;
+  bottom: 44px;
+  right: 0;
+  width: 260px;
+  padding: 16px;
+  border-radius: var(--tour-radius);
   background: var(--tour-bg);
   border: 1px solid var(--tour-border);
   color: var(--tour-fg);
   box-shadow: var(--tour-shadow);
-  transition:
-    width var(--morph-close-dur) var(--morph-close-ease),
-    height var(--morph-close-dur) var(--morph-close-ease),
-    border-radius var(--morph-close-dur) var(--morph-close-ease);
-}
-
-.t-morph[data-open="true"] {
-  width: 260px;
-  height: 300px;
-  border-radius: var(--morph-r-open);
-  transition:
-    width var(--morph-open-dur) var(--morph-ease),
-    height var(--morph-open-dur) var(--morph-ease),
-    border-radius var(--morph-open-dur) var(--morph-ease);
-}
-
-.t-morph-plus {
-  position: absolute;
-  inset: auto 0 0 auto;
-  width: 36px;
-  height: 36px;
-  display: grid;
-  place-items: center;
-  border: 0;
-  background: transparent;
-  color: var(--tour-fg);
-  cursor: pointer;
-  z-index: 2;
-  transition:
-    opacity var(--morph-fade-dur) var(--morph-close-ease),
-    transform var(--morph-open-dur) var(--morph-close-ease);
-}
-
-.t-morph-plus svg {
-  transition: transform var(--morph-open-dur) var(--morph-close-ease);
-}
-
-.t-morph[data-open="true"] .t-morph-plus {
-  opacity: 0;
-  transform: translateX(calc(-1 * var(--morph-slide)));
-  pointer-events: none;
-}
-
-.t-morph-menu {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  padding: 14px 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  transform: translateX(var(--morph-slide)) scale(var(--morph-scale));
-  pointer-events: none;
   font-size: 13px;
+  transform-origin: bottom right;
+  opacity: 0;
+  transform: scale(0.96) translateY(4px);
+  pointer-events: none;
+  will-change: opacity, transform;
   transition:
-    opacity var(--morph-fade-dur) var(--morph-close-ease),
-    transform var(--morph-open-dur) var(--morph-close-ease);
+    opacity var(--tour-popover-dur) var(--tour-popover-ease),
+    transform var(--tour-popover-dur) var(--tour-popover-ease);
 }
 
-.t-morph[data-open="true"] .t-morph-menu {
+.inklu-tour-settings-panel[data-open="true"] {
   opacity: 1;
-  transform: translateX(0) scale(1);
+  transform: scale(1) translateY(0);
   pointer-events: auto;
 }
 
+@starting-style {
+  .inklu-tour-settings-panel[data-open="true"] {
+    opacity: 0;
+    transform: scale(0.96) translateY(4px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  .t-morph, .t-morph-plus, .t-morph-menu {
-    transition: none !important;
+  .inklu-tour-settings-trigger,
+  .inklu-tour-settings-panel {
+    transition: opacity 150ms ease-out !important;
   }
 }
 `;

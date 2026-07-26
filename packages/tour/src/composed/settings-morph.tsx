@@ -34,19 +34,55 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 	return (
 		<div
 			ref={ref}
-			className={`t-morph ${className ?? ""}`}
-			data-open={open ? "true" : "false"}
+			className={`inklu-tour-settings-container ${className ?? ""}`}
 			style={style}
 		>
-			<div className="t-morph-menu" role="dialog" aria-label="Tour Settings">
+			<button
+				type="button"
+				className="inklu-tour-settings-trigger"
+				aria-expanded={open ? "true" : "false"}
+				aria-label="Tour Settings Menu"
+				onClick={(e) => {
+					e.stopPropagation();
+					setOpen((v) => !v);
+				}}
+			>
+				<svg
+					width="16"
+					height="16"
+					viewBox="0 0 24 24"
+					fill="none"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				>
+					<line x1="4" y1="21" x2="4" y2="14" />
+					<line x1="4" y1="10" x2="4" y2="3" />
+					<line x1="12" y1="21" x2="12" y2="12" />
+					<line x1="12" y1="8" x2="12" y2="3" />
+					<line x1="20" y1="21" x2="20" y2="16" />
+					<line x1="20" y1="12" x2="20" y2="3" />
+					<line x1="1" y1="14" x2="7" y2="14" />
+					<line x1="9" y1="8" x2="15" y2="8" />
+					<line x1="17" y1="16" x2="23" y2="16" />
+				</svg>
+			</button>
+
+			<div
+				className="inklu-tour-settings-panel"
+				data-open={open ? "true" : "false"}
+				role="dialog"
+				aria-label="Tour Settings"
+			>
 				<div
 					style={{
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "space-between",
-						marginBottom: "4px",
+						marginBottom: "12px",
 						fontWeight: 600,
-						fontSize: "14px",
+						fontSize: "13px",
 					}}
 				>
 					<span>Tour Settings</span>
@@ -58,7 +94,7 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 							border: "none",
 							cursor: "pointer",
 							color: "var(--tour-muted, #71717a)",
-							fontSize: "16px",
+							fontSize: "14px",
 							lineHeight: 1,
 							padding: "2px",
 						}}
@@ -72,7 +108,6 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 						display: "flex",
 						flexDirection: "column",
 						gap: "10px",
-						overflowY: "auto",
 					}}
 				>
 					<label
@@ -160,7 +195,7 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 							display: "flex",
 							flexDirection: "column",
 							gap: "4px",
-							marginTop: "4px",
+							marginTop: "2px",
 						}}
 					>
 						<div
@@ -218,38 +253,6 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 					</div>
 				</div>
 			</div>
-
-			<button
-				type="button"
-				className="t-morph-plus"
-				aria-expanded={open ? "true" : "false"}
-				aria-label="Tour Settings Menu"
-				onClick={(e) => {
-					e.stopPropagation();
-					setOpen((v) => !v);
-				}}
-			>
-				<svg
-					width="16"
-					height="16"
-					viewBox="0 0 24 24"
-					fill="none"
-					stroke="currentColor"
-					strokeWidth="2"
-					strokeLinecap="round"
-					strokeLinejoin="round"
-				>
-					<line x1="4" y1="21" x2="4" y2="14" />
-					<line x1="4" y1="10" x2="4" y2="3" />
-					<line x1="12" y1="21" x2="12" y2="12" />
-					<line x1="12" y1="8" x2="12" y2="3" />
-					<line x1="20" y1="21" x2="20" y2="16" />
-					<line x1="20" y1="12" x2="20" y2="3" />
-					<line x1="1" y1="14" x2="7" y2="14" />
-					<line x1="9" y1="8" x2="15" y2="8" />
-					<line x1="17" y1="16" x2="23" y2="16" />
-				</svg>
-			</button>
 		</div>
 	);
 }
