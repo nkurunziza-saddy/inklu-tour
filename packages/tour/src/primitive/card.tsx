@@ -185,11 +185,10 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 							? {
 									left: 0,
 									top: 0,
-									translate: `${pos.left}px ${pos.top}px`,
 									transform: `translate(${pos.left}px, ${pos.top}px)`,
 									transition:
 										isTransitioning && !reducedMotion
-											? `translate ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), transform ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`
+											? `transform ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`
 											: "none",
 								}
 							: {

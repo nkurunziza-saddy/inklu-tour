@@ -67,35 +67,30 @@ const TOUR_CSS = /* css */ `
   outline: none;
   opacity: 0;
   scale: var(--tour-scale-close);
-  transform: scale(var(--tour-scale-close));
   pointer-events: none;
-  will-change: transform, scale, translate, opacity, width, height;
+  will-change: opacity, scale, width, height;
   transition:
-    opacity   var(--tour-close-dur) var(--tour-ease),
-    transform var(--tour-close-dur) var(--tour-ease),
-    scale     var(--tour-close-dur) var(--tour-ease),
-    width     var(--tour-open-dur)  var(--tour-ease),
-    height    var(--tour-open-dur)  var(--tour-ease);
+    opacity var(--tour-close-dur) var(--tour-ease),
+    scale   var(--tour-close-dur) var(--tour-ease),
+    width   var(--tour-open-dur)  var(--tour-ease),
+    height  var(--tour-open-dur)  var(--tour-ease);
 }
 
 .inklu-tour-card[data-open="true"] {
   opacity: 1;
   scale: var(--tour-scale-open);
-  transform: scale(var(--tour-scale-open));
   pointer-events: auto;
   transition:
-    opacity   var(--tour-open-dur) var(--tour-ease),
-    transform var(--tour-open-dur) var(--tour-ease),
-    scale     var(--tour-open-dur) var(--tour-ease),
-    width     var(--tour-open-dur) var(--tour-ease),
-    height    var(--tour-open-dur) var(--tour-ease);
+    opacity var(--tour-open-dur) var(--tour-ease),
+    scale   var(--tour-open-dur) var(--tour-ease),
+    width   var(--tour-open-dur) var(--tour-ease),
+    height  var(--tour-open-dur) var(--tour-ease);
 }
 
 @starting-style {
   .inklu-tour-card[data-open="true"] {
     opacity: 0;
     scale: var(--tour-scale-close);
-    transform: scale(var(--tour-scale-close)) translateY(4px);
   }
 }
 
