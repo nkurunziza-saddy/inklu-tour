@@ -34,7 +34,7 @@ export function Tour(props: TourRootProps) {
 }
 
 function TourCardContent() {
-	const { currentStep, currentStepIndex, totalSteps, isWaiting } =
+	const { currentStep, currentStepIndex, totalSteps, isWaiting, labels } =
 		useTourContext();
 	const progress =
 		totalSteps > 0 ? ((currentStepIndex + 1) / totalSteps) * 100 : 0;
@@ -80,16 +80,16 @@ function TourCardContent() {
 						className="inklu-tour-btn-prev"
 						disabled={currentStepIndex === 0 || isWaiting}
 					>
-						Prev
+						{labels?.previous ?? "Prev"}
 					</TourPreviousButton>
 
 					<TourNextButton className="inklu-tour-btn-next" disabled={isWaiting}>
 						{isWaiting ? (
 							<span className="inklu-tour-spinner" />
 						) : currentStepIndex === totalSteps - 1 ? (
-							"Finish"
+							labels?.finish ?? "Finish"
 						) : (
-							"Next"
+							labels?.next ?? "Next"
 						)}
 					</TourNextButton>
 				</div>

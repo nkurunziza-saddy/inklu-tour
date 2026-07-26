@@ -37,6 +37,12 @@ export function Root({
 	showSpotlight: propShowSpotlight,
 	spotlightPadding: propSpotlightPadding,
 	maskOpacity: propMaskOpacity,
+	spotlightRadius: propSpotlightRadius,
+	autoScroll: propAutoScroll,
+	cardOffset: propCardOffset,
+	showArrow: propShowArrow,
+	targetPulse: propTargetPulse,
+	labels: propLabels,
 	children,
 }: TourRootProps) {
 	const closeOnOutsideClick =
@@ -51,6 +57,12 @@ export function Root({
 	const spotlightPadding =
 		propSpotlightPadding ?? tour?.spotlightPadding ?? 8;
 	const maskOpacity = propMaskOpacity ?? tour?.maskOpacity ?? 0.6;
+	const spotlightRadius = propSpotlightRadius ?? tour?.spotlightRadius;
+	const autoScroll = propAutoScroll ?? tour?.autoScroll ?? true;
+	const cardOffset = propCardOffset ?? tour?.cardOffset ?? 16;
+	const showArrow = propShowArrow ?? tour?.showArrow ?? true;
+	const targetPulse = propTargetPulse ?? tour?.targetPulse ?? false;
+	const labels = propLabels ?? tour?.labels;
 
 	const steps = tour?.steps ?? [];
 	const currentStep = steps[stepIndex] ?? null;
@@ -107,6 +119,7 @@ export function Root({
 		rectsStepId,
 		isWaiting: targetIsWaiting,
 	} = useTourTarget(open ? currentStep : null, {
+		autoScroll,
 		onTargetWaiting,
 		onTargetFound,
 		onTargetTimeout,
@@ -188,6 +201,12 @@ export function Root({
 			showSpotlight,
 			spotlightPadding,
 			maskOpacity,
+			spotlightRadius,
+			autoScroll,
+			cardOffset,
+			showArrow,
+			targetPulse,
+			labels,
 			next: handleNext,
 			previous: handlePrevious,
 			close: handleClose,
@@ -212,6 +231,12 @@ export function Root({
 			showSpotlight,
 			spotlightPadding,
 			maskOpacity,
+			spotlightRadius,
+			autoScroll,
+			cardOffset,
+			showArrow,
+			targetPulse,
+			labels,
 			handleNext,
 			handlePrevious,
 			handleClose,

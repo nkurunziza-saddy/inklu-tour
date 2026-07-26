@@ -36,6 +36,9 @@ export function Spotlight({
 	const maskOpacity = propMaskOpacity ?? context.maskOpacity ?? 0.6;
 	const closeOnOverlayClick = context.closeOnOverlayClick ?? false;
 
+	const spotlightRadius = context.spotlightRadius;
+	const targetPulse = context.targetPulse ?? false;
+
 	const [mounted, setMounted] = React.useState(false);
 	const [isTransitioning, setIsTransitioning] = React.useState(false);
 	const prevStepId = React.useRef(currentStep?.id);
@@ -92,7 +95,7 @@ export function Spotlight({
 							y={r.top - padding}
 							width={r.width + padding * 2}
 							height={r.height + padding * 2}
-							rx={r.radius + 4}
+							rx={spotlightRadius ?? r.radius + 4}
 							fill="black"
 							style={{ transition: transitionStyle }}
 						/>
@@ -116,11 +119,12 @@ export function Spotlight({
 			{rects.map((r, i) => (
 				<rect
 					key={`ring-${i}`}
+					className={targetPulse ? "inklu-tour-target-pulse" : undefined}
 					x={r.left - padding}
 					y={r.top - padding}
 					width={r.width + padding * 2}
 					height={r.height + padding * 2}
-					rx={r.radius + 4}
+					rx={spotlightRadius ?? r.radius + 4}
 					fill="none"
 					stroke={stroke}
 					strokeWidth={strokeWidth}

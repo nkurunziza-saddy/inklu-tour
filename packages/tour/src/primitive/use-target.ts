@@ -7,6 +7,7 @@ import type { Rect, TargetStrategy, TourStep } from "./types";
 export function useTourTarget(
 	step: TourStep | null,
 	options: {
+		autoScroll?: boolean;
 		onTargetWaiting?: (stepId: string) => void;
 		onTargetFound?: (stepId: string) => void;
 		onTargetTimeout?: (stepId: string) => void;
@@ -93,14 +94,16 @@ export function useTourTarget(
 					if (observer) observer.disconnect();
 					optionsRef.current.onTargetFound?.(step!.id);
 
-					// Only scroll if the element is not in the viewport or is reasonably sized
-					const rect = els[0]?.getBoundingClientRect();
-					if (rect) {
-						const isVisible =
-							rect.top >= 0 && rect.bottom <= window.innerHeight;
-						const isHuge = rect.height >= window.innerHeight * 0.8;
-						if (!isVisible && !isHuge) {
-							els[0]?.scrollIntoView({ block: "center", behavior: "instant" });
+					// Only scroll if autoScroll is enabled and element is not in viewport
+					if (optionsRef.current.autoScroll !== false) {
+						const rect = els[0]?.getBoundingClientRect();
+						if (rect) {
+							const isVisible =
+								rect.top >= 0 && rect.bottom <= window.innerHeight;
+							const isHuge = rect.height >= window.innerHeight * 0.8;
+							if (!isVisible && !isHuge) {
+								els[0]?.scrollIntoView({ block: "center", behavior: "smooth" });
+							}
 						}
 					}
 				}

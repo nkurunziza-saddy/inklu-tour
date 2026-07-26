@@ -159,6 +159,46 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 							userSelect: "none",
 						}}
 					>
+						<span>Target Ring Pulse</span>
+						<input
+							type="checkbox"
+							checked={options.targetPulse ?? false}
+							onChange={(e) =>
+								updateOptions({ targetPulse: e.target.checked })
+							}
+							style={{ accentColor: "var(--tour-accent, #18181b)" }}
+						/>
+					</label>
+
+					<label
+						style={{
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "space-between",
+							cursor: "pointer",
+							userSelect: "none",
+						}}
+					>
+						<span>Show Card Arrow</span>
+						<input
+							type="checkbox"
+							checked={options.showArrow ?? true}
+							onChange={(e) =>
+								updateOptions({ showArrow: e.target.checked })
+							}
+							style={{ accentColor: "var(--tour-accent, #18181b)" }}
+						/>
+					</label>
+
+					<label
+						style={{
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "space-between",
+							cursor: "pointer",
+							userSelect: "none",
+						}}
+					>
 						<span>Show Spotlight</span>
 						<input
 							type="checkbox"

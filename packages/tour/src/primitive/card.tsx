@@ -22,6 +22,7 @@ export interface TourCardProps extends React.HTMLAttributes<HTMLDivElement> {
 
 export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 	({ style, children, asChild, ...props }, ref) => {
+		const tourContext = useTourContext();
 		const {
 			rects,
 			currentStep,
@@ -29,7 +30,10 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 			skipAnimation,
 			isAnimatingExit,
 			reducedMotion,
-		} = useTourContext();
+		} = tourContext;
+		const cardOffset = tourContext.cardOffset ?? 16;
+		const showArrow = tourContext.showArrow ?? true;
+
 		const [cardSize, setCardSize] = React.useState<{
 			width: number;
 			height: number;
@@ -66,7 +70,7 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 
 		const activePos =
 			anchor && !isWaiting
-				? calculatePosition(anchor, cardSize, currentStep?.placement)
+				? calculatePosition(anchor, cardSize, currentStep?.placement, cardOffset)
 				: null;
 
 		const lastPosRef = React.useRef<{
@@ -84,7 +88,7 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 		const side = pos?.side || placementStr.split("-")[0] || "bottom";
 
 		let arrowStyle: React.CSSProperties = { display: "none" };
-		if (anchor && activePos && !isWaiting) {
+		if (anchor && activePos && !isWaiting && showArrow) {
 			const arrowSize = 14;
 			const offset = arrowSize / 2;
 			let relativeX = anchor.left + anchor.width / 2 - activePos.left;

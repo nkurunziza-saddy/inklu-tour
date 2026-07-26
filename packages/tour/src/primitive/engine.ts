@@ -34,11 +34,12 @@ export function calculatePosition(
 	anchor: Rect,
 	cardSize: { width: number; height: number },
 	placementStr: string = "bottom-center",
+	cardOffset: number = 16,
 ): { left: number; top: number; side: string; align: string } {
 	const parts = placementStr.split("-");
 	let side = parts[0] || "bottom";
 	const align = parts[1] || "center";
-	const pad = 20;
+	const pad = cardOffset;
 	const vw = document.documentElement.clientWidth || window.innerWidth;
 	const vh = document.documentElement.clientHeight || window.innerHeight;
 	const margin = 16;

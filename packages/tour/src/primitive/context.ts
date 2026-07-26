@@ -28,6 +28,12 @@ export interface TourContextValue {
 	showSpotlight?: boolean;
 	spotlightPadding?: number;
 	maskOpacity?: number;
+	spotlightRadius?: number;
+	autoScroll?: boolean;
+	cardOffset?: number;
+	showArrow?: boolean;
+	targetPulse?: boolean;
+	labels?: { next?: string; previous?: string; finish?: string };
 
 	next: () => void;
 	previous: () => void;

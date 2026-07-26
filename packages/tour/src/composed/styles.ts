@@ -51,6 +51,19 @@ const TOUR_CSS = /* css */ `
   }
 }
 
+@keyframes inklu-tour-pulse {
+  0%, 100% {
+    stroke-opacity: 0.8;
+  }
+  50% {
+    stroke-opacity: 0.25;
+  }
+}
+
+.inklu-tour-target-pulse {
+  animation: inklu-tour-pulse 2s ease-in-out infinite;
+}
+
 /* ── Card ────────────────────────────────────────────────────────── */
 
 .inklu-tour-card {
@@ -336,7 +349,9 @@ const TOUR_CSS = /* css */ `
   position: absolute;
   bottom: 44px;
   right: 0;
-  width: 260px;
+  width: 270px;
+  max-height: 380px;
+  overflow-y: auto;
   padding: 16px;
   border-radius: var(--tour-radius);
   background: var(--tour-bg);
