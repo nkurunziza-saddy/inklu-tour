@@ -1,4 +1,4 @@
-import { TOUR_EXIT_DURATION } from "./context";
+import { TOUR_EXIT_DURATION } from "./constants";
 import { TargetTracker } from "./tracker";
 import type { Rect, TourStep } from "./types";
 

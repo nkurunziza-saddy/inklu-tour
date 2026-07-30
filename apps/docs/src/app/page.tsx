@@ -10,7 +10,7 @@ import {
 	SiteLayout,
 	TextEffect,
 } from "@inklu/docs";
-import { TourSettingsMorph, useTour } from "@inklu/tour";
+import { TourSettingsMorph, useTour } from "@inklu/tour/react";
 import { ArrowRight, PlayCircle } from "@phosphor-icons/react";
 import { motion } from "motion/react";
 import Link from "next/link";

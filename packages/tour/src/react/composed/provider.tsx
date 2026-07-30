@@ -2,7 +2,7 @@
 
 import { observe } from "@inklu/audio";
 import * as React from "react";
-import type { TourConfig, TourConfigOptions } from "../primitive/types";
+import type { TourConfig, TourConfigOptions } from "../../core/types";
 import { injectTourStyles } from "./styles";
 import { Tour } from "./tour";
 

@@ -1,21 +1,5 @@
-// Composed (batteries-included) — the default export
-
-export type {
-	TourProviderProps,
-	TourSettingsMorphProps,
-	UseTourReturn,
-} from "./composed";
-export { TourProvider, TourSettingsMorph, useTour } from "./composed";
-
-// Audio re-exports from @inklu/audio
-export { observe, sounds } from "@inklu/audio";
-
-// Re-export types that consumers need for tour configuration
-export type {
-	StepTarget,
-	TargetStrategy,
-	TourConfig,
-	TourConfigOptions,
-	TourStep,
-	TourTargetConfig,
-} from "./primitive/types";
+export * from "./core/constants";
+export * from "./core/engine";
+export * from "./core/machine";
+export * from "./core/tracker";
+export * from "./core/types";

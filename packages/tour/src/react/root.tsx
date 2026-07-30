@@ -1,9 +1,9 @@
 "use client";
 
 import * as React from "react";
+import { TourEngine } from "../core/machine";
+import type { TourConfig, TourConfigOptions } from "../core/types";
 import { TourContext } from "./context";
-import { TourEngine } from "./machine";
-import type { TourConfig, TourConfigOptions } from "./types";
 
 export interface TourRootProps {
 	tour: TourConfig | null;
@@ -34,6 +34,8 @@ const DEFAULT_CONFIG: TourConfigOptions = {
 	targetPulse: false,
 };
 
+const EMPTY_STEPS: any[] = [];
+
 export function Root({
 	tour,
 	open = false,
@@ -52,7 +54,7 @@ export function Root({
 		return { ...DEFAULT_CONFIG, ...tour?.config, ...propConfig };
 	}, [tour?.config, propConfig]);
 
-	const steps = tour?.steps ?? [];
+	const steps = tour?.steps ?? EMPTY_STEPS;
 
 	const [engine] = React.useState(() => new TourEngine());
 

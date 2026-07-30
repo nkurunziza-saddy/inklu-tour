@@ -1,3 +1,6 @@
+export { observe, sounds } from "@inklu/audio";
+export * from "../core/engine";
+export * from "../core/types";
 export {
 	Arrow as TourArrow,
 	Card as TourCard,
@@ -5,9 +8,13 @@ export {
 	NextButton as TourNextButton,
 	PreviousButton as TourPreviousButton,
 } from "./card";
+export type {
+	TourProviderProps,
+	TourSettingsMorphProps,
+	UseTourReturn,
+} from "./composed";
+export { TourProvider, TourSettingsMorph, useTour } from "./composed";
 export * from "./context";
-export * from "./engine";
 export type { TourRootProps } from "./root";
 export { Root as TourRoot } from "./root";
 export { Spotlight as TourSpotlight } from "./spotlight";
-export * from "./types";

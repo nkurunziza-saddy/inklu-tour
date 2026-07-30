@@ -1,9 +1,9 @@
 import { fireEvent, render, screen } from "@testing-library/react";
-import * as React from "react";
+
 import { describe, expect, it, vi } from "vitest";
-import { observe, sounds, TourProvider, useTour } from "../index";
-import { CloseButton, NextButton, PreviousButton } from "../primitive/card";
-import { TourContext } from "../primitive/context";
+import { CloseButton, NextButton, PreviousButton } from "../react/card";
+import { TourContext } from "../react/context";
+import { observe, sounds } from "../react/index";
 
 // Mock Web Audio API for JSDOM constructor call: `new AudioContext()`
 if (typeof window !== "undefined") {

@@ -1,0 +1,2 @@
+export const TOUR_ANIMATION_DURATION = 250;
+export const TOUR_EXIT_DURATION = 150;

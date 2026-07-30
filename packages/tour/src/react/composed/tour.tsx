@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
-import type { TourRootProps } from "../primitive";
+
+import type { TourRootProps } from "..";
 import {
 	TourArrow,
 	TourCard,
@@ -11,7 +11,7 @@ import {
 	TourRoot,
 	TourSpotlight,
 	useTourContext,
-} from "../primitive";
+} from "..";
 
 export type { TourRootProps };
 
@@ -31,6 +31,8 @@ export function Tour(props: TourRootProps) {
 		</TourRoot>
 	);
 }
+
+const EMPTY_STEPS: any[] = [];
 
 function TourCardContent() {
 	const { currentStep, currentStepIndex, totalSteps, isWaiting, config } =

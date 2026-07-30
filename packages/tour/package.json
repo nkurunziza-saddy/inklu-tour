@@ -2,20 +2,56 @@
 	"name": "@inklu/tour",
 	"version": "0.1.0",
 	"private": true,
-	"main": "src/index.ts",
-	"types": "src/index.ts",
+	"main": "dist/index.js",
+	"module": "dist/index.mjs",
+	"types": "dist/index.d.ts",
 	"exports": {
-		".": "./src/index.ts",
-		"./primitive": "./src/primitive/index.ts"
+		".": {
+			"types": "./dist/index.d.ts",
+			"import": "./dist/index.mjs",
+			"require": "./dist/index.js"
+		},
+		"./react": {
+			"types": "./dist/react.d.ts",
+			"import": "./dist/react.mjs",
+			"require": "./dist/react.js"
+		},
+		"./vue": {
+			"types": "./dist/vue.d.ts",
+			"import": "./dist/vue.mjs",
+			"require": "./dist/vue.js"
+		},
+		"./svelte": {
+			"types": "./dist/svelte.d.ts",
+			"import": "./dist/svelte.mjs",
+			"require": "./dist/svelte.js"
+		}
 	},
 	"scripts": {
+		"build": "tsup",
 		"lint": "biome check .",
 		"check-types": "tsc --noEmit",
 		"test": "vitest run"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0 || ^19.0.0",
-		"react-dom": "^18.0.0 || ^19.0.0"
+		"react-dom": "^18.0.0 || ^19.0.0",
+		"vue": "^3.0.0",
+		"svelte": "^4.0.0 || ^5.0.0"
+	},
+	"peerDependenciesMeta": {
+		"react": {
+			"optional": true
+		},
+		"react-dom": {
+			"optional": true
+		},
+		"vue": {
+			"optional": true
+		},
+		"svelte": {
+			"optional": true
+		}
 	},
 	"dependencies": {
 		"@inklu/audio": "^0.2.1",
@@ -26,6 +62,9 @@
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"jsdom": "^29.1.1",
-		"vitest": "^4.1.10"
+		"svelte": "5.0.0-next.272",
+		"tsup": "^8.5.1",
+		"vitest": "^4.1.10",
+		"vue": "^3.5.40"
 	}
 }

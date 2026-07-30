@@ -1,6 +1,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { TOUR_ANIMATION_DURATION, useTourContext } from "./context";
+import { TOUR_ANIMATION_DURATION } from "../core/constants";
+import { useTourContext } from "./context";
 
 export function Spotlight({
 	className,

@@ -3,8 +3,9 @@
 import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 import { createPortal } from "react-dom";
-import { TOUR_ANIMATION_DURATION, useTourContext } from "./context";
-import { calculatePosition, unionOf } from "./engine";
+import { TOUR_ANIMATION_DURATION } from "../core/constants";
+import { calculatePosition, unionOf } from "../core/engine";
+import { useTourContext } from "./context";
 
 const CardContext = React.createContext<{
 	arrowStyle: React.CSSProperties;
@@ -105,9 +106,12 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 				width: arrowSize,
 				height: arrowSize,
 				backgroundColor: "inherit",
-				borderWidth: 1,
-				borderStyle: "solid",
+				borderTopWidth: "1px",
+				borderRightWidth: "1px",
+				borderBottomWidth: "1px",
+				borderLeftWidth: "1px",
 				borderColor: "inherit",
+				borderStyle: "solid",
 				transform: "rotate(45deg)",
 				zIndex: -1,
 				pointerEvents: "none",
