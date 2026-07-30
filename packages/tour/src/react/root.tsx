@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { TourEngine } from "../core/machine";
-import type { TourConfig, TourConfigOptions } from "../core/types";
+import type { TourConfig, TourConfigOptions, TourStep } from "../core/types";
 import { TourContext } from "./context";
 
 export interface TourRootProps {

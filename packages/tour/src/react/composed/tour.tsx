@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import type { TourRootProps } from "..";
 import {
 	TourArrow,
@@ -46,7 +47,7 @@ function TourCardContent() {
 						key={`title-${currentStep.id}`}
 					>
 						<div className="inklu-tour-title">
-							{currentStep.meta?.title ?? "Tour Step"}
+							{(currentStep.meta?.title as React.ReactNode) ?? "Tour Step"}
 						</div>
 					</div>
 					<TourCloseButton className="inklu-tour-close">
@@ -60,7 +61,7 @@ function TourCardContent() {
 				className="inklu-tour-content inklu-tour-content-wrapper"
 				key={`content-${currentStep.id}`}
 			>
-				{currentStep.meta?.content}
+				{currentStep.meta?.content as React.ReactNode}
 			</div>
 
 			<div className="inklu-tour-footer">
