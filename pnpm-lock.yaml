@@ -24,8 +24,8 @@ importers:
         specifier: ^0.2.1
         version: 0.2.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@inklu/docs':
-        specifier: ^0.4.0
-        version: 0.4.0(@types/react@19.2.2)(next@16.2.10(@playwright/test@1.62.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(svelte@5.0.0-next.272)(vue@3.5.40(typescript@5.9.2))
+        specifier: ^0.5.0
+        version: 0.5.0(@types/react@19.2.2)(next@16.2.10(@playwright/test@1.62.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(svelte@5.0.0-next.272)(vue@3.5.40(typescript@5.9.2))
       '@inklu/tour':
         specifier: workspace:^
         version: link:../../packages/tour
@@ -668,8 +668,8 @@ packages:
       react-dom:
         optional: true
 
-  '@inklu/docs@0.4.0':
-    resolution: {integrity: sha512-cTKrr1G5n0xjJQ5yeRPjI1R4yhRyRyZ4MtyUxdWzXZHTEKbDZ8UMpBl7MUrk29n2O2uy195vzvqBKilZjsLcKg==}
+  '@inklu/docs@0.5.0':
+    resolution: {integrity: sha512-GYRp9z/od6tfu2rnY5ujegszsmHGPnwmhCmEoES4xTf50TP4vWeAKmkEuWfzJlevHZXnsjGsfaMR+TvM5jBKTw==}
     peerDependencies:
       next: '*'
       react: '*'
@@ -690,16 +690,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.31':
     resolution: {integrity: sha512-zzNR+SdQSDJzc8joaeP8QQoCQr8NuYx2dIIytl1QeBEZHJ9uW6hebsrYgbz8hJwUQao3TWCMtmfV8Nu1twOLAw==}
-
-  '@lisse/core@0.5.2':
-    resolution: {integrity: sha512-9gMuO1Cqwerm8dFmzpspZYyEAJaId8TmVaOrqUBxMJNpkRmeVYXIthwfC1Mz7Ciph9bT7xtPXKVyPC+t58lTSA==}
-    engines: {node: '>=18'}
-
-  '@lisse/react@0.5.2':
-    resolution: {integrity: sha512-KgoMO0rjMMTrikvspFkkxg/Ctmr6FAQqtf79f2a6/otZeUoxya4hfjAkxdNxvHfDbzqqugAlJyRhhi6rsMlXcA==}
-    engines: {node: '>=18'}
-    peerDependencies:
-      react: '>=18.0.0'
 
   '@napi-rs/wasm-runtime@1.1.6':
     resolution: {integrity: sha512-ZLv/JdUfkvOy9eCnnBaGfiO+XimbjebAeO+MRQqD/B+FR1tnRN0tpKSJHRbE8sFfS6aqsXZ67TQjfwfsxULVbg==}
@@ -1686,6 +1676,17 @@ packages:
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
+
+  griffo@1.1.1:
+    resolution: {integrity: sha512-X6ytylwqG1UmjDAbYVMgQx2OurTebio08vfwQDU1L6S99QE6UtF8wOx2HFqWP4Yul8s+GHWqcAy4sBWcW1mQ3w==}
+    peerDependencies:
+      motion: '>=11.0.0'
+      react: '>=18.0.0'
+    peerDependenciesMeta:
+      motion:
+        optional: true
+      react:
+        optional: true
 
   has-flag@4.0.0:
     resolution: {integrity: sha512-EykJT/Q1KjTWctppgIAgfSO0tKVuZUjhgMr17kqTumMl6Afv3EISleU7qZUzoXDFTAHTDC4NOoG/ZxU3EvlMPQ==}
@@ -2792,14 +2793,15 @@ snapshots:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
 
-  '@inklu/docs@0.4.0(@types/react@19.2.2)(next@16.2.10(@playwright/test@1.62.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(svelte@5.0.0-next.272)(vue@3.5.40(typescript@5.9.2))':
+  '@inklu/docs@0.5.0(@types/react@19.2.2)(next@16.2.10(@playwright/test@1.62.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react-dom@19.2.4(react@19.2.4))(react@19.2.4)(svelte@5.0.0-next.272)(vue@3.5.40(typescript@5.9.2))':
     dependencies:
       '@base-ui/react': 1.6.0(@types/react@19.2.2)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
-      '@lisse/react': 0.5.2(react@19.2.4)
+      '@inklu/audio': 0.2.1(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@phosphor-icons/react': 2.1.10(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       '@vercel/analytics': 2.0.1(next@16.2.10(@playwright/test@1.62.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)(svelte@5.0.0-next.272)(vue@3.5.40(typescript@5.9.2))
       class-variance-authority: 0.7.1
       clsx: 2.1.1
+      griffo: 1.1.1(motion@12.42.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4)
       motion: 12.42.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       next: 16.2.10(@playwright/test@1.62.0)(babel-plugin-react-compiler@1.0.0)(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
       next-themes: 0.4.6(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
@@ -2838,13 +2840,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
-
-  '@lisse/core@0.5.2': {}
-
-  '@lisse/react@0.5.2(react@19.2.4)':
-    dependencies:
-      '@lisse/core': 0.5.2
-      react: 19.2.4
 
   '@napi-rs/wasm-runtime@1.1.6(@emnapi/core@1.11.1)(@emnapi/runtime@1.11.1)':
     dependencies:
@@ -3653,6 +3648,11 @@ snapshots:
     optional: true
 
   graceful-fs@4.2.11: {}
+
+  griffo@1.1.1(motion@12.42.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4))(react@19.2.4):
+    optionalDependencies:
+      motion: 12.42.2(react-dom@19.2.4(react@19.2.4))(react@19.2.4)
+      react: 19.2.4
 
   has-flag@4.0.0: {}
 

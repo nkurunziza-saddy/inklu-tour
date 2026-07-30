@@ -6,8 +6,6 @@ import {
 	HoverCard,
 	HoverCardContent,
 	HoverCardTrigger,
-	SiteHeader,
-	SiteLayout,
 	TextEffect,
 } from "@inklu/docs";
 import { TourSettingsMorph, useTour } from "@inklu/tour/react";
@@ -17,14 +15,7 @@ import Link from "next/link";
 
 export default function Home() {
 	return (
-		<SiteLayout
-			header={<SiteHeader navItems={[{ label: "Docs", href: "/docs" }]} />}
-			footer={
-				<p className="font-medium text-muted-foreground">
-					Built by Saddy Nkurunziza. MIT licensed.
-				</p>
-			}
-		>
+		<>
 			<div className="max-w-(--layout-content-width) mx-auto px-4 sm:px-6 w-full pt-24 pb-32">
 				<div className="typeset typeset-docs">
 					<TextEffect
@@ -132,7 +123,7 @@ export default function Home() {
 			<div className="fixed bottom-6 right-6 z-50">
 				<TourSettingsMorph />
 			</div>
-		</SiteLayout>
+		</>
 	);
 }
 

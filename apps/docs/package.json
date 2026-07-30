@@ -11,7 +11,7 @@
 	},
 	"dependencies": {
 		"@inklu/audio": "^0.2.1",
-		"@inklu/docs": "^0.4.0",
+		"@inklu/docs": "^0.5.0",
 		"@inklu/tour": "workspace:^",
 		"@phosphor-icons/react": "^2.1.10",
 		"@radix-ui/react-icons": "^1.3.2",

@@ -1,4 +1,11 @@
-import { SiteProvider } from "@inklu/docs";
+import {
+	SiteHeader,
+	SiteLayout,
+	SiteLayoutFooter,
+	SiteLayoutHeader,
+	SiteLayoutMain,
+	SiteProvider,
+} from "@inklu/docs";
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "@/components/providers";
@@ -15,8 +22,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-	title: "Inklu Docs App",
-	description: "Built with @inklu/docs",
+	title: "Inklu Tour Documentation",
+	description: "Headless product tour primitive for React & Next.js",
 };
 
 export default function RootLayout({
@@ -30,7 +37,18 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} min-h-screen flex flex-col antialiased`}
 			>
 				<SiteProvider>
-					<Providers>{children}</Providers>
+					<Providers>
+						<SiteLayout>
+							<SiteLayoutHeader>
+								<SiteHeader
+									navItems={[{ label: "Docs", href: "/docs" }]}
+									githubUrl="https://github.com/nkurunziza-saddy/inklu-tour"
+								/>
+							</SiteLayoutHeader>
+							<SiteLayoutMain>{children}</SiteLayoutMain>
+							<SiteLayoutFooter />
+						</SiteLayout>
+					</Providers>
 				</SiteProvider>
 			</body>
 		</html>
