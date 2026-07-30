@@ -20,7 +20,6 @@ export function Tour(props: TourRootProps) {
 		<TourRoot {...props}>
 			<TourSpotlight
 				fill="black"
-				maskOpacity={0.6}
 				stroke="var(--tour-fg, currentColor)"
 				strokeWidth={2}
 				strokeOpacity={0.8}
@@ -34,10 +33,8 @@ export function Tour(props: TourRootProps) {
 }
 
 function TourCardContent() {
-	const { currentStep, currentStepIndex, totalSteps, isWaiting, labels } =
+	const { currentStep, currentStepIndex, totalSteps, isWaiting, config } =
 		useTourContext();
-	const progress =
-		totalSteps > 0 ? ((currentStepIndex + 1) / totalSteps) * 100 : 0;
 
 	if (!currentStep) return null;
 
@@ -80,16 +77,16 @@ function TourCardContent() {
 						className="inklu-tour-btn-prev"
 						disabled={currentStepIndex === 0 || isWaiting}
 					>
-						{labels?.previous ?? "Prev"}
+						{config.labels?.previous ?? "Prev"}
 					</TourPreviousButton>
 
 					<TourNextButton className="inklu-tour-btn-next" disabled={isWaiting}>
 						{isWaiting ? (
 							<span className="inklu-tour-spinner" />
 						) : currentStepIndex === totalSteps - 1 ? (
-							labels?.finish ?? "Finish"
+							(config.labels?.finish ?? "Finish")
 						) : (
-							labels?.next ?? "Next"
+							(config.labels?.next ?? "Next")
 						)}
 					</TourNextButton>
 				</div>
@@ -118,5 +115,3 @@ function CloseIcon() {
 		</svg>
 	);
 }
-
-

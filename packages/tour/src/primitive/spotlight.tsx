@@ -31,13 +31,13 @@ export function Spotlight({
 		close,
 	} = context;
 
-	const showSpotlight = context.showSpotlight ?? true;
-	const padding = propPadding ?? context.spotlightPadding ?? 8;
-	const maskOpacity = propMaskOpacity ?? context.maskOpacity ?? 0.6;
-	const closeOnOverlayClick = context.closeOnOverlayClick ?? false;
+	const showSpotlight = context.config.showSpotlight ?? true;
+	const padding = propPadding ?? context.config.spotlightPadding ?? 8;
+	const maskOpacity = propMaskOpacity ?? context.config.maskOpacity ?? 0.6;
+	const closeOnOverlayClick = context.config.closeOnOverlayClick ?? false;
 
-	const spotlightRadius = context.spotlightRadius;
-	const targetPulse = context.targetPulse ?? false;
+	const spotlightRadius = context.config.spotlightRadius;
+	const targetPulse = context.config.targetPulse ?? false;
 
 	const [mounted, setMounted] = React.useState(false);
 	const [isTransitioning, setIsTransitioning] = React.useState(false);

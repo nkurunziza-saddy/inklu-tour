@@ -11,4 +11,3 @@ export type { TourRootProps } from "./root";
 export { Root as TourRoot } from "./root";
 export { Spotlight as TourSpotlight } from "./spotlight";
 export * from "./types";
-export * from "./use-target";

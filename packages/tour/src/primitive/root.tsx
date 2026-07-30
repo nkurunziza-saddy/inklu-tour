@@ -1,11 +1,11 @@
 "use client";
 
 import * as React from "react";
-import { TOUR_EXIT_DURATION, TourContext } from "./context";
+import { TourContext } from "./context";
+import { TourEngine } from "./machine";
 import type { TourConfig, TourConfigOptions } from "./types";
-import { useTourTarget } from "./use-target";
 
-export interface TourRootProps extends TourConfigOptions {
+export interface TourRootProps {
 	tour: TourConfig | null;
 	open?: boolean;
 	onOpenChange?: (open: boolean) => void;
@@ -17,7 +17,22 @@ export interface TourRootProps extends TourConfigOptions {
 	onTargetFound?: (stepId: string) => void;
 	onTargetTimeout?: (stepId: string) => void;
 	children?: React.ReactNode;
+	config?: TourConfigOptions;
 }
+
+const DEFAULT_CONFIG: TourConfigOptions = {
+	closeOnOutsideClick: false,
+	closeOnOverlayClick: false,
+	keyboardNavigation: true,
+	dismissOnEscape: true,
+	showSpotlight: true,
+	spotlightPadding: 8,
+	maskOpacity: 0.6,
+	autoScroll: true,
+	cardOffset: 16,
+	showArrow: true,
+	targetPulse: false,
+};
 
 export function Root({
 	tour,
@@ -30,48 +45,49 @@ export function Root({
 	onTargetWaiting,
 	onTargetFound,
 	onTargetTimeout,
-	closeOnOutsideClick: propCloseOnOutsideClick,
-	closeOnOverlayClick: propCloseOnOverlayClick,
-	keyboardNavigation: propKeyboardNavigation,
-	dismissOnEscape: propDismissOnEscape,
-	showSpotlight: propShowSpotlight,
-	spotlightPadding: propSpotlightPadding,
-	maskOpacity: propMaskOpacity,
-	spotlightRadius: propSpotlightRadius,
-	autoScroll: propAutoScroll,
-	cardOffset: propCardOffset,
-	showArrow: propShowArrow,
-	targetPulse: propTargetPulse,
-	labels: propLabels,
 	children,
+	config: propConfig,
 }: TourRootProps) {
-	const closeOnOutsideClick =
-		propCloseOnOutsideClick ?? tour?.closeOnOutsideClick ?? false;
-	const closeOnOverlayClick =
-		propCloseOnOverlayClick ?? tour?.closeOnOverlayClick ?? false;
-	const keyboardNavigation =
-		propKeyboardNavigation ?? tour?.keyboardNavigation ?? true;
-	const dismissOnEscape =
-		propDismissOnEscape ?? tour?.dismissOnEscape ?? true;
-	const showSpotlight = propShowSpotlight ?? tour?.showSpotlight ?? true;
-	const spotlightPadding =
-		propSpotlightPadding ?? tour?.spotlightPadding ?? 8;
-	const maskOpacity = propMaskOpacity ?? tour?.maskOpacity ?? 0.6;
-	const spotlightRadius = propSpotlightRadius ?? tour?.spotlightRadius;
-	const autoScroll = propAutoScroll ?? tour?.autoScroll ?? true;
-	const cardOffset = propCardOffset ?? tour?.cardOffset ?? 16;
-	const showArrow = propShowArrow ?? tour?.showArrow ?? true;
-	const targetPulse = propTargetPulse ?? tour?.targetPulse ?? false;
-	const labels = propLabels ?? tour?.labels;
+	const config = React.useMemo<TourConfigOptions>(() => {
+		return { ...DEFAULT_CONFIG, ...tour?.config, ...propConfig };
+	}, [tour?.config, propConfig]);
 
 	const steps = tour?.steps ?? [];
-	const currentStep = steps[stepIndex] ?? null;
 
-	const [mounted, setMounted] = React.useState(open);
-	const [isAnimatingExit, setIsAnimatingExit] = React.useState(false);
-	const [skipAnimation, setSkipAnimation] = React.useState(false);
+	const [engine] = React.useState(() => new TourEngine());
+
+	// Keep options fresh without triggering re-renders in the engine
+	React.useEffect(() => {
+		engine.setOptions({
+			autoScroll: config.autoScroll ?? true,
+			onTargetWaiting,
+			onTargetFound,
+			onTargetTimeout,
+			onSkip: () => engine.next(),
+			onStepChange,
+			onOpenChange,
+			onComplete,
+			onDismiss,
+		});
+	});
+
+	// Sync props to engine state
+	React.useEffect(() => {
+		engine.setProps(open, stepIndex, steps);
+	}, [engine, open, stepIndex, steps]);
+
+	// Cleanup on unmount
+	React.useEffect(() => {
+		return () => engine.destroy();
+	}, [engine]);
+
+	const engineState = React.useSyncExternalStore(
+		(listener) => engine.subscribe(listener),
+		() => engine.getState(),
+		() => engine.getState(),
+	);
+
 	const [reducedMotion, setReducedMotion] = React.useState(false);
-
 	React.useEffect(() => {
 		const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
 		setReducedMotion(mql.matches);
@@ -80,171 +96,66 @@ export function Root({
 		return () => mql.removeEventListener("change", listener);
 	}, []);
 
-	React.useEffect(() => {
-		if (open) {
-			setMounted(true);
-			setIsAnimatingExit(false);
-		} else if (mounted) {
-			setIsAnimatingExit(true);
-			const t = setTimeout(() => {
-				setMounted(false);
-				setIsAnimatingExit(false);
-			}, TOUR_EXIT_DURATION);
-			return () => clearTimeout(t);
-		}
-	}, [open, mounted]);
-
-	const handleNext = React.useCallback(() => {
-		if (stepIndex < steps.length - 1) {
-			onStepChange?.(stepIndex + 1);
-		} else {
-			onComplete?.();
-			onOpenChange?.(false);
-		}
-	}, [stepIndex, steps.length, onStepChange, onComplete, onOpenChange]);
-
-	const handlePrevious = React.useCallback(() => {
-		if (stepIndex > 0) {
-			onStepChange?.(stepIndex - 1);
-		}
-	}, [stepIndex, onStepChange]);
-
-	const handleClose = React.useCallback(() => {
-		onDismiss?.();
-		onOpenChange?.(false);
-	}, [onDismiss, onOpenChange]);
-
-	const {
-		rects,
-		rectsStepId,
-		isWaiting: targetIsWaiting,
-	} = useTourTarget(open ? currentStep : null, {
-		autoScroll,
-		onTargetWaiting,
-		onTargetFound,
-		onTargetTimeout,
-		onSkip: handleNext,
-	});
-
-	const isWaiting =
-		targetIsWaiting || (currentStep ? rectsStepId !== currentStep.id : false);
-
-	const handlersRef = React.useRef({ handleClose, handleNext, handlePrevious });
-	React.useEffect(() => {
-		handlersRef.current = { handleClose, handleNext, handlePrevious };
-	}, [handleClose, handleNext, handlePrevious]);
-
+	// Keyboard & Outside Click Adapters
 	React.useEffect(() => {
 		if (!open) return;
 		const handleKeyDown = (e: KeyboardEvent) => {
-			if (e.key === "Escape" && dismissOnEscape) {
-				handlersRef.current.handleClose();
-			} else if (keyboardNavigation && e.key === "ArrowRight") {
-				setSkipAnimation(true);
-				handlersRef.current.handleNext();
-			} else if (keyboardNavigation && e.key === "ArrowLeft") {
-				setSkipAnimation(true);
-				handlersRef.current.handlePrevious();
+			if (e.key === "Escape" && config.dismissOnEscape) {
+				engine.close();
+			} else if (config.keyboardNavigation && e.key === "ArrowRight") {
+				engine.setSkipAnimation(true);
+				engine.next();
+			} else if (config.keyboardNavigation && e.key === "ArrowLeft") {
+				engine.setSkipAnimation(true);
+				engine.previous();
 			}
 		};
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [open, dismissOnEscape, keyboardNavigation]);
+	}, [engine, open, config.dismissOnEscape, config.keyboardNavigation]);
 
+	// Reset skip animation after it takes effect
 	React.useEffect(() => {
-		if (!open || !closeOnOutsideClick) return;
-		const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
-			const targetNode = e.target as Node | null;
-			if (!targetNode) return;
-			const cardEl = document.querySelector(".inklu-tour-card");
-			if (cardEl && cardEl.contains(targetNode)) return;
-			handlersRef.current.handleClose();
-		};
-		const timer = setTimeout(() => {
-			document.addEventListener("mousedown", handleOutsideClick);
-			document.addEventListener("touchstart", handleOutsideClick);
-		}, 50);
-		return () => {
-			clearTimeout(timer);
-			document.removeEventListener("mousedown", handleOutsideClick);
-			document.removeEventListener("touchstart", handleOutsideClick);
-		};
-	}, [open, closeOnOutsideClick]);
-
-	React.useEffect(() => {
-		if (skipAnimation) {
+		if (engineState.skipAnimation) {
 			requestAnimationFrame(() => {
 				requestAnimationFrame(() => {
-					setSkipAnimation(false);
+					engine.setSkipAnimation(false);
 				});
 			});
 		}
-	}, [stepIndex, skipAnimation]);
+	}, [engine, engineState.skipAnimation]);
 
 	const contextValue = React.useMemo(
 		() => ({
 			tour,
-			open,
-			isAnimatingExit,
-			currentStepIndex: stepIndex,
-			currentStep,
+			open: engineState.open,
+			isAnimatingExit: engineState.isAnimatingExit,
+			currentStepIndex: engineState.stepIndex,
+			currentStep: engineState.currentStep,
 			totalSteps: steps.length,
-			isWaiting,
-			rects,
-			rectsStepId,
-			skipAnimation,
+			isWaiting: engineState.isWaiting,
+			rects: engineState.rects,
+			rectsStepId: engineState.rectsStepId,
+			skipAnimation: engineState.skipAnimation,
 			reducedMotion,
-			closeOnOutsideClick,
-			closeOnOverlayClick,
-			keyboardNavigation,
-			dismissOnEscape,
-			showSpotlight,
-			spotlightPadding,
-			maskOpacity,
-			spotlightRadius,
-			autoScroll,
-			cardOffset,
-			showArrow,
-			targetPulse,
-			labels,
-			next: handleNext,
-			previous: handlePrevious,
-			close: handleClose,
+			config,
+			next: () => engine.next(),
+			previous: () => engine.previous(),
+			close: () => engine.close(),
 			setStep: (idx: number) => onStepChange?.(idx),
 		}),
 		[
 			tour,
-			open,
-			isAnimatingExit,
-			stepIndex,
-			currentStep,
+			engineState,
 			steps.length,
-			isWaiting,
-			rects,
-			rectsStepId,
-			skipAnimation,
 			reducedMotion,
-			closeOnOutsideClick,
-			closeOnOverlayClick,
-			keyboardNavigation,
-			dismissOnEscape,
-			showSpotlight,
-			spotlightPadding,
-			maskOpacity,
-			spotlightRadius,
-			autoScroll,
-			cardOffset,
-			showArrow,
-			targetPulse,
-			labels,
-			handleNext,
-			handlePrevious,
-			handleClose,
+			config,
+			engine,
 			onStepChange,
 		],
 	);
 
-	if (!mounted) return null;
+	if (!engineState.mounted) return null;
 
 	return (
 		<TourContext.Provider value={contextValue}>{children}</TourContext.Provider>

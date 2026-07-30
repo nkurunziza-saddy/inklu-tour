@@ -10,17 +10,22 @@
 	},
 	"scripts": {
 		"lint": "biome check .",
-		"check-types": "tsc --noEmit"
+		"check-types": "tsc --noEmit",
+		"test": "vitest run"
 	},
 	"peerDependencies": {
 		"react": "^18.0.0 || ^19.0.0",
 		"react-dom": "^18.0.0 || ^19.0.0"
 	},
 	"dependencies": {
+		"@inklu/audio": "^0.2.1",
 		"@radix-ui/react-slot": "^1.1.0"
 	},
 	"devDependencies": {
+		"@testing-library/react": "^16.3.2",
 		"@types/react": "^19",
-		"@types/react-dom": "^19"
+		"@types/react-dom": "^19",
+		"jsdom": "^29.1.1",
+		"vitest": "^4.1.10"
 	}
 }

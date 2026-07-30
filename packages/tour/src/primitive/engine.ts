@@ -35,7 +35,13 @@ export function calculatePosition(
 	cardSize: { width: number; height: number },
 	placementStr: string = "bottom-center",
 	cardOffset: number = 16,
-): { left: number; top: number; side: string; align: string } {
+): {
+	left: number;
+	top: number;
+	side: string;
+	align: string;
+	arrow: { x: number; y: number };
+} {
 	const parts = placementStr.split("-");
 	let side = parts[0] || "bottom";
 	const align = parts[1] || "center";
@@ -97,10 +103,29 @@ export function calculatePosition(
 		else top = anchor.top + anchor.height / 2 - cardSize.height / 2;
 	}
 
+	const clampedLeft = Math.min(
+		Math.max(left, margin),
+		vw - cardSize.width - margin,
+	);
+	const clampedTop = Math.min(
+		Math.max(top, margin),
+		vh - cardSize.height - margin,
+	);
+
+	let arrowX = anchor.left + anchor.width / 2 - clampedLeft;
+	let arrowY = anchor.top + anchor.height / 2 - clampedTop;
+
+	arrowX = Math.max(20, Math.min(arrowX, cardSize.width - 20));
+	arrowY = Math.max(20, Math.min(arrowY, cardSize.height - 20));
+
 	return {
-		left: Math.min(Math.max(left, margin), vw - cardSize.width - margin),
-		top: Math.min(Math.max(top, margin), vh - cardSize.height - margin),
+		left: clampedLeft,
+		top: clampedTop,
 		side,
 		align,
+		arrow: {
+			x: arrowX,
+			y: arrowY,
+		},
 	};
 }

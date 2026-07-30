@@ -31,8 +31,8 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 			isAnimatingExit,
 			reducedMotion,
 		} = tourContext;
-		const cardOffset = tourContext.cardOffset ?? 16;
-		const showArrow = tourContext.showArrow ?? true;
+		const cardOffset = tourContext.config.cardOffset ?? 16;
+		const showArrow = tourContext.config.showArrow ?? true;
 
 		const [cardSize, setCardSize] = React.useState<{
 			width: number;
@@ -70,13 +70,19 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 
 		const activePos =
 			anchor && !isWaiting
-				? calculatePosition(anchor, cardSize, currentStep?.placement, cardOffset)
+				? calculatePosition(
+						anchor,
+						cardSize,
+						currentStep?.placement,
+						cardOffset,
+					)
 				: null;
 
 		const lastPosRef = React.useRef<{
 			left: number;
 			top: number;
 			side: string;
+			arrow: { x: number; y: number };
 		} | null>(null);
 
 		if (activePos) {
@@ -88,14 +94,11 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 		const side = pos?.side || placementStr.split("-")[0] || "bottom";
 
 		let arrowStyle: React.CSSProperties = { display: "none" };
-		if (anchor && activePos && !isWaiting && showArrow) {
+		if (anchor && pos && !isWaiting && showArrow) {
 			const arrowSize = 14;
 			const offset = arrowSize / 2;
-			let relativeX = anchor.left + anchor.width / 2 - activePos.left;
-			let relativeY = anchor.top + anchor.height / 2 - activePos.top;
-
-			relativeX = Math.max(20, Math.min(relativeX, cardSize.width - 20));
-			relativeY = Math.max(20, Math.min(relativeY, cardSize.height - 20));
+			const relativeX = pos.arrow.x;
+			const relativeY = pos.arrow.y;
 
 			arrowStyle = {
 				position: "absolute",
@@ -161,6 +164,29 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 				return () => clearTimeout(t);
 			}
 		}, [isTransitioning, skipAnimation]);
+
+		React.useEffect(() => {
+			if (!tourContext.open || !tourContext.config.closeOnOutsideClick) return;
+			const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+				const targetNode = e.target as Node | null;
+				if (!targetNode) return;
+				if (innerRef.current?.contains(targetNode)) return;
+				tourContext.close();
+			};
+			const timer = setTimeout(() => {
+				document.addEventListener("mousedown", handleOutsideClick);
+				document.addEventListener("touchstart", handleOutsideClick);
+			}, 50);
+			return () => {
+				clearTimeout(timer);
+				document.removeEventListener("mousedown", handleOutsideClick);
+				document.removeEventListener("touchstart", handleOutsideClick);
+			};
+		}, [
+			tourContext.open,
+			tourContext.config.closeOnOutsideClick,
+			tourContext.close,
+		]);
 
 		if (!mounted) return null;
 
@@ -237,6 +263,7 @@ export const NextButton = React.forwardRef<HTMLButtonElement, TourButtonProps>(
 		return (
 			<Comp
 				ref={ref}
+				data-sound-click="turn:forward"
 				onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 					next();
 					onClick?.(e);
@@ -258,6 +285,7 @@ export const PreviousButton = React.forwardRef<
 	return (
 		<Comp
 			ref={ref}
+			data-sound-click="turn:backward"
 			onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 				previous();
 				onClick?.(e);
@@ -277,6 +305,7 @@ export const CloseButton = React.forwardRef<HTMLButtonElement, TourButtonProps>(
 		return (
 			<Comp
 				ref={ref}
+				data-sound-click="close"
 				onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
 					close();
 					onClick?.(e);

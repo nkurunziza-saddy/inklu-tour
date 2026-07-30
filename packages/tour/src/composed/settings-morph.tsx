@@ -8,8 +8,11 @@ export interface TourSettingsMorphProps {
 	style?: React.CSSProperties;
 }
 
-export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) {
-	const { options, updateOptions } = useTour();
+export function TourSettingsMorph({
+	className,
+	style,
+}: TourSettingsMorphProps) {
+	const { config, updateConfig } = useTour();
 	const [open, setOpen] = React.useState(false);
 	const ref = React.useRef<HTMLDivElement>(null);
 
@@ -122,9 +125,9 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 						<span>Press outside to close</span>
 						<input
 							type="checkbox"
-							checked={options.closeOnOutsideClick ?? false}
+							checked={config.closeOnOutsideClick ?? false}
 							onChange={(e) =>
-								updateOptions({ closeOnOutsideClick: e.target.checked })
+								updateConfig({ closeOnOutsideClick: e.target.checked })
 							}
 							style={{ accentColor: "var(--tour-accent, #18181b)" }}
 						/>
@@ -142,9 +145,9 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 						<span>Click overlay to close</span>
 						<input
 							type="checkbox"
-							checked={options.closeOnOverlayClick ?? false}
+							checked={config.closeOnOverlayClick ?? false}
 							onChange={(e) =>
-								updateOptions({ closeOnOverlayClick: e.target.checked })
+								updateConfig({ closeOnOverlayClick: e.target.checked })
 							}
 							style={{ accentColor: "var(--tour-accent, #18181b)" }}
 						/>
@@ -162,10 +165,8 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 						<span>Target Ring Pulse</span>
 						<input
 							type="checkbox"
-							checked={options.targetPulse ?? false}
-							onChange={(e) =>
-								updateOptions({ targetPulse: e.target.checked })
-							}
+							checked={config.targetPulse ?? false}
+							onChange={(e) => updateConfig({ targetPulse: e.target.checked })}
 							style={{ accentColor: "var(--tour-accent, #18181b)" }}
 						/>
 					</label>
@@ -182,10 +183,8 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 						<span>Show Card Arrow</span>
 						<input
 							type="checkbox"
-							checked={options.showArrow ?? true}
-							onChange={(e) =>
-								updateOptions({ showArrow: e.target.checked })
-							}
+							checked={config.showArrow ?? true}
+							onChange={(e) => updateConfig({ showArrow: e.target.checked })}
 							style={{ accentColor: "var(--tour-accent, #18181b)" }}
 						/>
 					</label>
@@ -202,9 +201,9 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 						<span>Show Spotlight</span>
 						<input
 							type="checkbox"
-							checked={options.showSpotlight ?? true}
+							checked={config.showSpotlight ?? true}
 							onChange={(e) =>
-								updateOptions({ showSpotlight: e.target.checked })
+								updateConfig({ showSpotlight: e.target.checked })
 							}
 							style={{ accentColor: "var(--tour-accent, #18181b)" }}
 						/>
@@ -222,9 +221,9 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 						<span>Keyboard Navigation</span>
 						<input
 							type="checkbox"
-							checked={options.keyboardNavigation ?? true}
+							checked={config.keyboardNavigation ?? true}
 							onChange={(e) =>
-								updateOptions({ keyboardNavigation: e.target.checked })
+								updateConfig({ keyboardNavigation: e.target.checked })
 							}
 							style={{ accentColor: "var(--tour-accent, #18181b)" }}
 						/>
@@ -247,17 +246,20 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 							}}
 						>
 							<span>Spotlight Padding</span>
-							<span>{options.spotlightPadding ?? 8}px</span>
+							<span>{config.spotlightPadding ?? 8}px</span>
 						</div>
 						<input
 							type="range"
 							min="0"
 							max="24"
-							value={options.spotlightPadding ?? 8}
+							value={config.spotlightPadding ?? 8}
 							onChange={(e) =>
-								updateOptions({ spotlightPadding: Number(e.target.value) })
+								updateConfig({ spotlightPadding: Number(e.target.value) })
 							}
-							style={{ width: "100%", accentColor: "var(--tour-accent, #18181b)" }}
+							style={{
+								width: "100%",
+								accentColor: "var(--tour-accent, #18181b)",
+							}}
 						/>
 					</div>
 
@@ -277,18 +279,21 @@ export function TourSettingsMorph({ className, style }: TourSettingsMorphProps) 
 							}}
 						>
 							<span>Overlay Dimness</span>
-							<span>{Math.round((options.maskOpacity ?? 0.6) * 100)}%</span>
+							<span>{Math.round((config.maskOpacity ?? 0.6) * 100)}%</span>
 						</div>
 						<input
 							type="range"
 							min="0.1"
 							max="0.9"
 							step="0.05"
-							value={options.maskOpacity ?? 0.6}
+							value={config.maskOpacity ?? 0.6}
 							onChange={(e) =>
-								updateOptions({ maskOpacity: Number(e.target.value) })
+								updateConfig({ maskOpacity: Number(e.target.value) })
 							}
-							style={{ width: "100%", accentColor: "var(--tour-accent, #18181b)" }}
+							style={{
+								width: "100%",
+								accentColor: "var(--tour-accent, #18181b)",
+							}}
 						/>
 					</div>
 				</div>

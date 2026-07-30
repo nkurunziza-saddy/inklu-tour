@@ -1,15 +1,19 @@
 "use client";
 
+import { observe } from "@inklu/audio";
 import * as React from "react";
 import type { TourConfig, TourConfigOptions } from "../primitive/types";
 import { injectTourStyles } from "./styles";
 import { Tour } from "./tour";
 
-export interface TourProviderProps extends TourConfigOptions {
+export interface TourProviderProps {
 	tours: TourConfig[];
 	/** Called when a step has a `route` property and becomes active. Wire your router here (e.g. `router.push`). */
 	onNavigate?: (route: string) => void;
+	/** Enable declarative audio synthesis via `@inklu/audio` data attributes. Defaults to true. */
+	enableAudio?: boolean;
 	children: React.ReactNode;
+	config?: TourConfigOptions;
 }
 
 export interface UseTourReturn {
@@ -22,9 +26,9 @@ export interface UseTourReturn {
 	/** Whether a tour is currently open. */
 	isActive: boolean;
 	/** Current active configuration options */
-	options: TourConfigOptions;
+	config: TourConfigOptions;
 	/** Update specific tour configuration options dynamically */
-	updateOptions: (newOptions: Partial<TourConfigOptions>) => void;
+	updateConfig: (newConfig: Partial<TourConfigOptions>) => void;
 }
 
 const TourManagerContext = React.createContext<UseTourReturn | null>(null);
@@ -33,7 +37,7 @@ const TourManagerContext = React.createContext<UseTourReturn | null>(null);
  * Access the tour manager from anywhere inside `<TourProvider>`.
  *
  * ```tsx
- * const { startTour, updateOptions } = useTour();
+ * const { startTour, updateConfig } = useTour();
  * <button onClick={() => startTour("my-tour")}>Take a Tour</button>
  * ```
  */
@@ -55,36 +59,31 @@ export function useTour(): UseTourReturn {
 export function TourProvider({
 	tours,
 	onNavigate,
+	enableAudio = true,
 	children,
-	closeOnOutsideClick = false,
-	closeOnOverlayClick = false,
-	keyboardNavigation = true,
-	dismissOnEscape = true,
-	showSpotlight = true,
-	spotlightPadding = 8,
-	maskOpacity = 0.6,
+	config: initialConfig = {},
 }: TourProviderProps) {
 	React.useEffect(() => {
 		injectTourStyles();
 	}, []);
 
+	React.useEffect(() => {
+		if (enableAudio) {
+			const cleanup = observe();
+			return cleanup;
+		}
+	}, [enableAudio]);
+
 	const [activeTourId, setActiveTourId] = React.useState<string | null>(null);
 	const [open, setOpen] = React.useState(false);
 	const [stepIndex, setStepIndex] = React.useState(0);
 
-	const [options, setOptionsState] = React.useState<TourConfigOptions>({
-		closeOnOutsideClick,
-		closeOnOverlayClick,
-		keyboardNavigation,
-		dismissOnEscape,
-		showSpotlight,
-		spotlightPadding,
-		maskOpacity,
-	});
+	const [config, setConfigState] =
+		React.useState<TourConfigOptions>(initialConfig);
 
-	const updateOptions = React.useCallback(
-		(newOptions: Partial<TourConfigOptions>) => {
-			setOptionsState((prev) => ({ ...prev, ...newOptions }));
+	const updateConfig = React.useCallback(
+		(newConfig: Partial<TourConfigOptions>) => {
+			setConfigState((prev) => ({ ...prev, ...newConfig }));
 		},
 		[],
 	);
@@ -131,10 +130,10 @@ export function TourProvider({
 			stopTour,
 			activeTourId,
 			isActive: open,
-			options,
-			updateOptions,
+			config,
+			updateConfig,
 		}),
-		[startTour, stopTour, activeTourId, open, options, updateOptions],
+		[startTour, stopTour, activeTourId, open, config, updateConfig],
 	);
 
 	return (
@@ -148,7 +147,7 @@ export function TourProvider({
 				onStepChange={handleStepChange}
 				onDismiss={stopTour}
 				onComplete={stopTour}
-				{...options}
+				config={config}
 			/>
 		</TourManagerContext.Provider>
 	);

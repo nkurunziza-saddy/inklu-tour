@@ -51,9 +51,10 @@ export interface TourConfigOptions {
 	labels?: TourLabels;
 }
 
-export interface TourConfig extends TourConfigOptions {
+export interface TourConfig {
 	id: string;
 	steps: TourStep[];
+	config?: TourConfigOptions;
 }
 
 export interface Rect {

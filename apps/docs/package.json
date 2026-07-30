@@ -9,6 +9,7 @@
 		"lint": "biome check ."
 	},
 	"dependencies": {
+		"@inklu/audio": "^0.2.1",
 		"@inklu/docs": "^0.4.0",
 		"@inklu/tour": "workspace:^",
 		"@phosphor-icons/react": "^2.1.10",

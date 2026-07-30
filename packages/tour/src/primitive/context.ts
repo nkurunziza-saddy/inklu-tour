@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import type { Rect, TourConfig, TourStep } from "./types";
+import type { Rect, TourConfig, TourConfigOptions, TourStep } from "./types";
 
 export const TOUR_ANIMATION_DURATION = 250;
 export const TOUR_EXIT_DURATION = 150;
@@ -20,20 +20,7 @@ export interface TourContextValue {
 	skipAnimation: boolean;
 	reducedMotion: boolean;
 
-	// Configuration options
-	closeOnOutsideClick?: boolean;
-	closeOnOverlayClick?: boolean;
-	keyboardNavigation?: boolean;
-	dismissOnEscape?: boolean;
-	showSpotlight?: boolean;
-	spotlightPadding?: number;
-	maskOpacity?: number;
-	spotlightRadius?: number;
-	autoScroll?: boolean;
-	cardOffset?: number;
-	showArrow?: boolean;
-	targetPulse?: boolean;
-	labels?: { next?: string; previous?: string; finish?: string };
+	config: TourConfigOptions;
 
 	next: () => void;
 	previous: () => void;
