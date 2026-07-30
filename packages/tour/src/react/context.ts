@@ -33,7 +33,7 @@ export interface TourContextValue {
 export const TourContext = React.createContext<TourContextValue | null>(null);
 
 export function useTourContext() {
-	const ctx = React.use(TourContext);
+	const ctx = React.useContext(TourContext);
 	if (!ctx)
 		throw new Error("Tour components must be rendered within <Tour.Root>");
 	return ctx;

@@ -13,7 +13,7 @@ export interface TourStep {
 	target?: StepTarget;
 	placement?: string;
 	route?: string;
-	meta?: Record<string, any>;
+	meta?: Record<string, unknown>;
 }
 
 export interface TourLabels {

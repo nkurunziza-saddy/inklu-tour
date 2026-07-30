@@ -34,7 +34,7 @@ const DEFAULT_CONFIG: TourConfigOptions = {
 	targetPulse: false,
 };
 
-const EMPTY_STEPS: any[] = [];
+const EMPTY_STEPS: TourStep[] = [];
 
 export function Root({
 	tour,

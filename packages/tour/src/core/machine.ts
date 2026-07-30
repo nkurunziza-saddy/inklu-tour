@@ -102,47 +102,7 @@ export class TourEngine {
 		this.options = options;
 		this.tracker.setOptions({
 			autoScroll: options.autoScroll,
-			...this.getTrackerOptions(),
 		});
-	}
-
-	private getTrackerOptions() {
-		return {
-			onTargetFound: () => {
-				this.state.isWaiting = false;
-				if (this.state.currentStep) {
-					this.options.onTargetFound?.(this.state.currentStep.id);
-				}
-				this.notify();
-			},
-			onTargetWaiting: () => {
-				this.state.isWaiting = true;
-				if (this.state.currentStep) {
-					this.options.onTargetWaiting?.(this.state.currentStep.id);
-				}
-				this.notify();
-			},
-			onTargetTimeout: (
-				strategy: "wait" | "skip" | "error",
-				selector: string,
-			) => {
-				if (this.state.currentStep) {
-					this.options.onTargetTimeout?.(this.state.currentStep.id);
-				}
-				if (strategy === "skip") {
-					this.options.onSkip?.();
-				} else if (strategy === "error") {
-					throw new Error(`Tour target timeout: ${selector}`);
-				}
-			},
-			onRectsChange: (rects: Rect[]) => {
-				this.state.rects = rects;
-				if (this.state.currentStep) {
-					this.state.rectsStepId = this.state.currentStep.id;
-				}
-				this.notify();
-			},
-		};
 	}
 
 	setProps(open: boolean, stepIndex: number, steps: TourStep[]) {

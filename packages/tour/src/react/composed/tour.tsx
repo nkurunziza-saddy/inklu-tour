@@ -1,6 +1,5 @@
 "use client";
 
-
 import type { TourRootProps } from "..";
 import {
 	TourArrow,
@@ -31,8 +30,6 @@ export function Tour(props: TourRootProps) {
 		</TourRoot>
 	);
 }
-
-const EMPTY_STEPS: any[] = [];
 
 function TourCardContent() {
 	const { currentStep, currentStepIndex, totalSteps, isWaiting, config } =

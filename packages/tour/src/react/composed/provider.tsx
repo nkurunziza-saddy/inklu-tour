@@ -88,9 +88,11 @@ export function TourProvider({
 		[],
 	);
 
+	const safeTours = tours || [];
+
 	const activeTour = React.useMemo(
-		() => tours.find((t) => t.id === activeTourId) ?? null,
-		[tours, activeTourId],
+		() => safeTours.find((t) => t.id === activeTourId) ?? null,
+		[safeTours, activeTourId],
 	);
 
 	const navigateRef = React.useRef(onNavigate);
@@ -104,11 +106,11 @@ export function TourProvider({
 			setStepIndex(0);
 			setOpen(true);
 
-			const tour = tours.find((t) => t.id === id);
+			const tour = safeTours.find((t) => t.id === id);
 			const route = tour?.steps[0]?.route;
 			if (route) navigateRef.current?.(route);
 		},
-		[tours],
+		[safeTours],
 	);
 
 	const stopTour = React.useCallback(() => {

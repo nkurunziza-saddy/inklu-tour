@@ -1,4 +1,4 @@
-import { TourProvider, useTour } from "@inklu/tour/react";
+import { type TourConfig, TourProvider, useTour } from "@inklu/tour/react";
 
 function TargetApp() {
   const { startTour } = useTour();
@@ -12,6 +12,14 @@ function TargetApp() {
         onClick={() => startTour("demo")}
       >
         Start Tour
+      </button>
+      <button
+        type="button"
+        data-testid="start-skip-demo"
+        onClick={() => startTour("skip-demo")}
+        style={{ marginLeft: 16 }}
+      >
+        Start Skip Demo
       </button>
 
       <div
@@ -38,7 +46,7 @@ function TargetApp() {
   );
 }
 
-const tours = [
+const tours: TourConfig[] = [
   {
     id: "demo",
     steps: [
@@ -62,11 +70,34 @@ const tours = [
       },
     ],
   },
+  {
+    id: "skip-demo",
+    steps: [
+      {
+        id: "step-1",
+        target: "#target-1",
+        placement: "bottom" as const,
+        meta: { title: "First", content: "..." },
+      },
+      {
+        id: "missing-step",
+        target: { selector: "#missing", strategy: "skip", timeout: 100 },
+        placement: "bottom" as const,
+        meta: { title: "Missing", content: "This should be skipped." },
+      },
+      {
+        id: "step-2",
+        target: "#target-2",
+        placement: "bottom" as const,
+        meta: { title: "Second", content: "..." },
+      }
+    ]
+  }
 ];
 
 export default function App() {
   return (
-    <TourProvider tours={tours}>
+    <TourProvider tours={tours} config={{ closeOnOverlayClick: true }}>
       <TargetApp />
     </TourProvider>
   );

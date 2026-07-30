@@ -24,8 +24,8 @@ export class TargetTracker {
 		this.handleResizeScroll = this.handleResizeScroll.bind(this);
 	}
 
-	setOptions(options: TargetTrackerOptions) {
-		this.options = options;
+	setOptions(options: Partial<TargetTrackerOptions>) {
+		this.options = { ...this.options, ...options };
 	}
 
 	track(targetDef: string | TourTargetConfig) {
@@ -149,17 +149,18 @@ export class TargetTracker {
 					}
 				}
 			}
-			const newRects = els.flatMap((el) => {
-				const r = toRect(el);
-				return r ? [r] : [];
-			});
+			const newRects = els
+				.map((el) => toRect(el))
+				.filter((r): r is Rect => r !== null);
 
 			if (!rectsEqual(this.currentRects, newRects)) {
 				this.currentRects = newRects;
 				this.options.onRectsChange?.(newRects);
 			}
-		} else if (!this.found && !this.isWaiting) {
+		} else if (this.found || !this.isWaiting) {
+			this.found = false;
 			this.isWaiting = true;
+			this.currentRects = [];
 			this.options.onTargetWaiting?.();
 		}
 	};

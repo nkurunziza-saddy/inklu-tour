@@ -91,6 +91,7 @@ export function Spotlight({
 					<rect width="100%" height="100%" fill="white" />
 					{rects.map((r, i) => (
 						<rect
+							// biome-ignore lint/suspicious/noArrayIndexKey: Rect order is stable
 							key={`mask-${i}`}
 							x={r.left - padding}
 							y={r.top - padding}
@@ -103,6 +104,7 @@ export function Spotlight({
 					))}
 				</mask>
 			</defs>
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: Overlay mask click */}
 			<rect
 				width="100%"
 				height="100%"
@@ -119,6 +121,7 @@ export function Spotlight({
 			/>
 			{rects.map((r, i) => (
 				<rect
+					// biome-ignore lint/suspicious/noArrayIndexKey: Rect order is stable
 					key={`ring-${i}`}
 					className={targetPulse ? "inklu-tour-target-pulse" : undefined}
 					x={r.left - padding}

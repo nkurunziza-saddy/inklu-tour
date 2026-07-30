@@ -106,10 +106,6 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 				width: arrowSize,
 				height: arrowSize,
 				backgroundColor: "inherit",
-				borderTopWidth: "1px",
-				borderRightWidth: "1px",
-				borderBottomWidth: "1px",
-				borderLeftWidth: "1px",
 				borderColor: "inherit",
 				borderStyle: "solid",
 				transform: "rotate(45deg)",
@@ -120,23 +116,19 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 			if (side === "bottom") {
 				arrowStyle.top = -offset;
 				arrowStyle.left = relativeX - offset;
-				arrowStyle.borderBottomWidth = 0;
-				arrowStyle.borderRightWidth = 0;
+				arrowStyle.borderWidth = "1px 0 0 1px";
 			} else if (side === "top") {
 				arrowStyle.bottom = -offset;
 				arrowStyle.left = relativeX - offset;
-				arrowStyle.borderTopWidth = 0;
-				arrowStyle.borderLeftWidth = 0;
+				arrowStyle.borderWidth = "0 1px 1px 0";
 			} else if (side === "right") {
 				arrowStyle.left = -offset;
 				arrowStyle.top = relativeY - offset;
-				arrowStyle.borderTopWidth = 0;
-				arrowStyle.borderRightWidth = 0;
+				arrowStyle.borderWidth = "0 0 1px 1px";
 			} else if (side === "left") {
 				arrowStyle.right = -offset;
 				arrowStyle.top = relativeY - offset;
-				arrowStyle.borderBottomWidth = 0;
-				arrowStyle.borderLeftWidth = 0;
+				arrowStyle.borderWidth = "1px 1px 0 0";
 			}
 		}
 
