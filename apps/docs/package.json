@@ -6,7 +6,8 @@
 		"dev": "next dev",
 		"build": "next build",
 		"start": "next start",
-		"lint": "biome check ."
+		"lint": "biome check .",
+		"check-types": "tsc --noEmit"
 	},
 	"dependencies": {
 		"@inklu/audio": "^0.2.1",

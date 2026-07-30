@@ -6,7 +6,12 @@
 		"dev": "turbo run dev",
 		"lint": "turbo run lint",
 		"format": "biome format --write .",
-		"check-types": "turbo run check-types"
+		"check-types": "turbo run check-types",
+		"test": "turbo run test",
+		"test:unit": "turbo run test --filter=@inklu/tour",
+		"test:watch": "pnpm --filter=@inklu/tour test:watch",
+		"test:coverage": "turbo run test:coverage",
+		"test:e2e": "pnpm --filter=playground test:e2e"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.5.4",
