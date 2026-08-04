@@ -1,6 +1,6 @@
 {
 	"name": "@inklu/tour",
-	"version": "0.1.0",
+	"version": "0.2.0",
 	"description": "Accessible, headless product tours for React — spotlight overlay, resilient target tracking, and full composition control.",
 	"license": "MIT",
 	"author": "nkurunziza-saddy",
