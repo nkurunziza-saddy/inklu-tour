@@ -28,6 +28,26 @@ describe("engine - toRect", () => {
 		const rect = toRect(el);
 		expect(rect).toBeNull();
 	});
+
+	it("preserves a real zero radius instead of falling back to 8", () => {
+		const el = document.createElement("div");
+		mockElementRect(el, { top: 0, left: 0, width: 10, height: 10 });
+		Object.defineProperty(window, "getComputedStyle", {
+			value: () => ({ borderRadius: "0px" }),
+			configurable: true,
+		});
+		expect(toRect(el)?.radius).toBe(0);
+	});
+
+	it("falls back to 8 when the radius is not parseable", () => {
+		const el = document.createElement("div");
+		mockElementRect(el, { top: 0, left: 0, width: 10, height: 10 });
+		Object.defineProperty(window, "getComputedStyle", {
+			value: () => ({ borderRadius: "" }),
+			configurable: true,
+		});
+		expect(toRect(el)?.radius).toBe(8);
+	});
 });
 
 describe("engine - rectsEqual", () => {
@@ -46,6 +66,11 @@ describe("engine - rectsEqual", () => {
 		const a = [{ top: 10, left: 20, width: 100, height: 50, radius: 8 }];
 		const b = [{ top: 10, left: 21, width: 100, height: 50, radius: 8 }];
 		expect(rectsEqual(a, b)).toBe(false);
+	});
+
+	it("returns false rather than throwing on a sparse counterpart", () => {
+		const a = [{ top: 10, left: 20, width: 100, height: 50, radius: 8 }];
+		expect(rectsEqual(a, new Array(1))).toBe(false);
 	});
 });
 
@@ -166,6 +191,19 @@ describe("engine - calculatePosition", () => {
 		expect(result.left).toBe(16);
 	});
 
+	it("aligns start on top/bottom", () => {
+		mockWindowSize(1024, 768);
+		const anchor = { left: 300, top: 100, width: 100, height: 100, radius: 0 };
+		const result = calculatePosition(
+			anchor,
+			{ width: 200, height: 200 },
+			"bottom-start",
+			16,
+		);
+		expect(result.align).toBe("start");
+		expect(result.left).toBe(300);
+	});
+
 	it("aligns start and end on left/right", () => {
 		mockWindowSize(1024, 768);
 		const anchor = { left: 500, top: 500, width: 100, height: 100, radius: 0 };
@@ -194,8 +232,37 @@ describe("engine - calculatePosition", () => {
 	it("handles missing placement parts using default bottom-center", () => {
 		mockWindowSize(1024, 768);
 		const anchor = { left: 100, top: 100, width: 100, height: 100, radius: 0 };
-		const r = calculatePosition(anchor, { width: 200, height: 200 }, "", 16);
+		const r = calculatePosition(
+			anchor,
+			{ width: 200, height: 200 },
+			undefined,
+			16,
+		);
 		expect(r.side).toBe("bottom");
 		expect(r.align).toBe("center");
+
+		// A bare side is treated as `${side}-center`.
+		const bare = calculatePosition(
+			anchor,
+			{ width: 200, height: 200 },
+			"top",
+			16,
+		);
+		expect(bare.align).toBe("center");
+	});
+
+	it("keeps the card on screen when it is larger than the viewport", () => {
+		mockWindowSize(320, 480);
+		const anchor = { left: 100, top: 100, width: 50, height: 50, radius: 0 };
+		const r = calculatePosition(
+			anchor,
+			{ width: 800, height: 900 },
+			"bottom",
+			16,
+		);
+		// The clamp range is inverted here; pinning to the margin keeps the card's
+		// top-left corner visible rather than pushing it off the edge.
+		expect(r.left).toBe(16);
+		expect(r.top).toBe(16);
 	});
 });

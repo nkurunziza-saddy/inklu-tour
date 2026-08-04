@@ -1,12 +1,8 @@
 "use client";
 
 import * as React from "react";
-import type {
-	Rect,
-	TourConfig,
-	TourConfigOptions,
-	TourStep,
-} from "../core/types";
+import type { Rect, TourConfigOptions } from "../core/types";
+import type { TourConfig, TourStep } from "./types";
 
 export interface TourContextValue {
 	tour: TourConfig | null;
@@ -23,6 +19,13 @@ export interface TourContextValue {
 	reducedMotion: boolean;
 
 	config: TourConfigOptions;
+
+	/** Element id for the card's accessible name. Wire to the step title. */
+	labelId: string;
+	/** Element id for the card's accessible description. Wire to the step content. */
+	descriptionId: string;
+	/** Portal target for the card and spotlight. `null` means `document.body`. */
+	container: Element | null;
 
 	next: () => void;
 	previous: () => void;

@@ -1,37 +1,36 @@
-import { vi } from "vitest";
+import "@testing-library/jest-dom/vitest";
+import { cleanup } from "@testing-library/react";
+import { afterEach, vi } from "vitest";
 
-// Mock IntersectionObserver
 class MockIntersectionObserver {
 	observe = vi.fn();
 	unobserve = vi.fn();
 	disconnect = vi.fn();
 }
-window.IntersectionObserver = MockIntersectionObserver as any;
+window.IntersectionObserver =
+	MockIntersectionObserver as unknown as typeof IntersectionObserver;
 
-// Mock ResizeObserver
 class MockResizeObserver {
 	observe = vi.fn();
 	unobserve = vi.fn();
 	disconnect = vi.fn();
 }
-window.ResizeObserver = MockResizeObserver as any;
+window.ResizeObserver = MockResizeObserver as unknown as typeof ResizeObserver;
 
-// Mock matchMedia
 Object.defineProperty(window, "matchMedia", {
 	writable: true,
-	value: vi.fn().mockImplementation((query) => ({
+	value: vi.fn().mockImplementation((query: string) => ({
 		matches: false,
 		media: query,
 		onchange: null,
-		addListener: vi.fn(), // Deprecated
-		removeListener: vi.fn(), // Deprecated
+		addListener: vi.fn(),
+		removeListener: vi.fn(),
 		addEventListener: vi.fn(),
 		removeEventListener: vi.fn(),
 		dispatchEvent: vi.fn(),
 	})),
 });
 
-// Mock window dimensions
 Object.defineProperty(window, "innerWidth", {
 	writable: true,
 	configurable: true,
@@ -43,15 +42,24 @@ Object.defineProperty(window, "innerHeight", {
 	value: 768,
 });
 
-// Global override for getBoundingClientRect
-Element.prototype.getBoundingClientRect = () => ({
-	width: 0,
-	height: 0,
-	top: 0,
-	left: 0,
-	bottom: 0,
-	right: 0,
-	x: 0,
-	y: 0,
-	toJSON: () => {},
+// jsdom has no layout engine, so every element measures 0x0 unless a test opts
+// into a size via `mockElementRect`.
+Element.prototype.getBoundingClientRect = () =>
+	({
+		width: 0,
+		height: 0,
+		top: 0,
+		left: 0,
+		bottom: 0,
+		right: 0,
+		x: 0,
+		y: 0,
+		toJSON: () => ({}),
+	}) as DOMRect;
+
+// The tour portals into document.body; without an explicit cleanup those nodes
+// leak between tests and queries start matching the previous test's card.
+afterEach(() => {
+	cleanup();
+	document.body.innerHTML = "";
 });

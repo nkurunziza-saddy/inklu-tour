@@ -15,6 +15,15 @@ export function TourSettingsMorph({
 	const { config, updateConfig } = useTour();
 	const [open, setOpen] = React.useState(false);
 	const ref = React.useRef<HTMLDivElement>(null);
+	const panelRef = React.useRef<HTMLDivElement>(null);
+
+	// The panel stays mounted so it can animate out, which would otherwise leave
+	// its controls in the tab order and the accessibility tree while invisible.
+	// Set as a property rather than a JSX attribute so React 18 doesn't warn.
+	React.useEffect(() => {
+		const panel = panelRef.current;
+		if (panel) panel.inert = !open;
+	}, [open]);
 
 	React.useEffect(() => {
 		if (!open) return;
@@ -73,6 +82,7 @@ export function TourSettingsMorph({
 			</button>
 
 			<div
+				ref={panelRef}
 				className="inklu-tour-settings-panel"
 				data-open={open ? "true" : "false"}
 				role="dialog"
@@ -91,6 +101,7 @@ export function TourSettingsMorph({
 					<span>Tour Settings</span>
 					<button
 						type="button"
+						aria-label="Close tour settings"
 						onClick={() => setOpen(false)}
 						style={{
 							background: "none",
@@ -252,6 +263,7 @@ export function TourSettingsMorph({
 							type="range"
 							min="0"
 							max="24"
+							aria-label="Spotlight Padding"
 							value={config.spotlightPadding ?? 8}
 							onChange={(e) =>
 								updateConfig({ spotlightPadding: Number(e.target.value) })
@@ -286,6 +298,7 @@ export function TourSettingsMorph({
 							min="0.1"
 							max="0.9"
 							step="0.05"
+							aria-label="Overlay Dimness"
 							value={config.maskOpacity ?? 0.6}
 							onChange={(e) =>
 								updateConfig({ maskOpacity: Number(e.target.value) })

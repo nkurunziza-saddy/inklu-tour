@@ -1,7 +1,21 @@
+"use client";
+
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { TOUR_ANIMATION_DURATION } from "../core/constants";
 import { useTourContext } from "./context";
+import { useIsMounted } from "./utils";
+
+const EASE = "cubic-bezier(0.22, 1, 0.36, 1)";
+
+export interface TourSpotlightProps extends React.SVGProps<SVGSVGElement> {
+	padding?: number;
+	fill?: string;
+	maskOpacity?: number;
+	stroke?: string;
+	strokeWidth?: number | string;
+	strokeOpacity?: number;
+}
 
 export function Spotlight({
 	className,
@@ -13,14 +27,7 @@ export function Spotlight({
 	strokeWidth = 2,
 	strokeOpacity = 0.8,
 	...props
-}: React.SVGProps<SVGSVGElement> & {
-	padding?: number;
-	fill?: string;
-	maskOpacity?: number;
-	stroke?: string;
-	strokeWidth?: number | string;
-	strokeOpacity?: number;
-}) {
+}: TourSpotlightProps) {
 	const context = useTourContext();
 	const {
 		rects,
@@ -29,18 +36,24 @@ export function Spotlight({
 		skipAnimation,
 		isAnimatingExit,
 		reducedMotion,
+		container,
+		config,
 		close,
 	} = context;
 
-	const showSpotlight = context.config.showSpotlight ?? true;
-	const padding = propPadding ?? context.config.spotlightPadding ?? 8;
-	const maskOpacity = propMaskOpacity ?? context.config.maskOpacity ?? 0.6;
-	const closeOnOverlayClick = context.config.closeOnOverlayClick ?? false;
+	const showSpotlight = config.showSpotlight ?? true;
+	const padding = propPadding ?? config.spotlightPadding ?? 8;
+	const maskOpacity = propMaskOpacity ?? config.maskOpacity ?? 0.6;
+	const closeOnOverlayClick = config.closeOnOverlayClick ?? false;
+	const spotlightRadius = config.spotlightRadius;
+	const targetPulse = config.targetPulse ?? false;
+	const zIndex = config.zIndex ?? 9998;
 
-	const spotlightRadius = context.config.spotlightRadius;
-	const targetPulse = context.config.targetPulse ?? false;
+	// Scoped per instance: a hard-coded id collides when two tours (or two
+	// Spotlights) are mounted, and the second mask silently wins.
+	const maskId = `inklu-tour-mask-${React.useId().replace(/[:]/g, "")}`;
 
-	const [mounted, setMounted] = React.useState(false);
+	const mounted = useIsMounted();
 	const [isTransitioning, setIsTransitioning] = React.useState(false);
 	const prevStepId = React.useRef(currentStep?.id);
 
@@ -49,86 +62,95 @@ export function Spotlight({
 		prevStepId.current = currentStep?.id;
 	}
 
-	React.useEffect(() => setMounted(true), []);
-
 	React.useEffect(() => {
-		if (isTransitioning) {
-			const t = setTimeout(
-				() => setIsTransitioning(false),
-				skipAnimation ? 0 : TOUR_ANIMATION_DURATION,
-			);
-			return () => clearTimeout(t);
-		}
+		if (!isTransitioning) return;
+		const t = setTimeout(
+			() => setIsTransitioning(false),
+			skipAnimation ? 0 : TOUR_ANIMATION_DURATION,
+		);
+		return () => clearTimeout(t);
 	}, [isTransitioning, skipAnimation]);
 
 	if (!mounted || !showSpotlight) return null;
 
-	const transitionDuration = skipAnimation ? 0 : TOUR_ANIMATION_DURATION;
+	const duration = skipAnimation ? 0 : TOUR_ANIMATION_DURATION;
 	const transitionStyle =
 		isTransitioning && !reducedMotion
-			? `x ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), y ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), width ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), height ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1), rx ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`
+			? ["x", "y", "width", "height", "rx"]
+					.map((prop) => `${prop} ${duration}ms ${EASE}`)
+					.join(", ")
 			: "none";
+
+	// Keyed by index on purpose: the rects keep their order across updates, and
+	// reusing the same <rect> nodes is what lets the CSS transition animate the
+	// cutout from one target to the next instead of snapping.
+	const cutouts = rects.map((r, i) => ({
+		key: i,
+		x: r.left - padding,
+		y: r.top - padding,
+		width: r.width + padding * 2,
+		height: r.height + padding * 2,
+		rx: spotlightRadius ?? r.radius + 4,
+	}));
 
 	return createPortal(
 		<svg
 			className={className}
+			aria-hidden="true"
+			focusable="false"
 			style={{
 				position: "fixed",
 				inset: 0,
 				width: "100%",
 				height: "100%",
-				pointerEvents: closeOnOverlayClick ? "auto" : "none",
-				zIndex: 9998,
+				pointerEvents: "none",
+				zIndex,
 				opacity: isWaiting || isAnimatingExit ? 0 : 1,
-				transition: `opacity ${isAnimatingExit ? 150 : transitionDuration}ms ease-out`,
+				transition: `opacity ${isAnimatingExit ? 150 : duration}ms ease-out`,
 				...style,
 			}}
 			data-state={isWaiting ? "waiting" : "found"}
 			{...props}
 		>
 			<defs>
-				<mask id="tour-spotlight-mask">
+				<mask id={maskId}>
 					<rect width="100%" height="100%" fill="white" />
-					{rects.map((r, i) => (
+					{cutouts.map((c) => (
 						<rect
-							// biome-ignore lint/suspicious/noArrayIndexKey: Rect order is stable
-							key={`mask-${i}`}
-							x={r.left - padding}
-							y={r.top - padding}
-							width={r.width + padding * 2}
-							height={r.height + padding * 2}
-							rx={spotlightRadius ?? r.radius + 4}
+							key={`mask-${c.key}`}
+							x={c.x}
+							y={c.y}
+							width={c.width}
+							height={c.height}
+							rx={c.rx}
 							fill="black"
 							style={{ transition: transitionStyle }}
 						/>
 					))}
 				</mask>
 			</defs>
-			{/* biome-ignore lint/a11y/noStaticElementInteractions: Overlay mask click */}
+			{/* biome-ignore lint/a11y/noStaticElementInteractions: decorative overlay; Escape and the close button are the accessible paths */}
 			<rect
 				width="100%"
 				height="100%"
 				fill={fill}
 				opacity={maskOpacity}
-				mask="url(#tour-spotlight-mask)"
+				mask={`url(#${maskId})`}
 				style={{
 					pointerEvents: closeOnOverlayClick ? "auto" : "none",
 					cursor: closeOnOverlayClick ? "pointer" : "default",
 				}}
-				onClick={() => {
-					if (closeOnOverlayClick) close();
-				}}
+				onClick={closeOnOverlayClick ? () => close() : undefined}
 			/>
-			{rects.map((r, i) => (
+			{cutouts.map((c) => (
 				<rect
-					// biome-ignore lint/suspicious/noArrayIndexKey: Rect order is stable
-					key={`ring-${i}`}
+					key={`ring-${c.key}`}
 					className={targetPulse ? "inklu-tour-target-pulse" : undefined}
-					x={r.left - padding}
-					y={r.top - padding}
-					width={r.width + padding * 2}
-					height={r.height + padding * 2}
-					rx={spotlightRadius ?? r.radius + 4}
+					x={c.x}
+					y={c.y}
+					width={c.width}
+					height={c.height}
+					rx={c.rx}
 					fill="none"
 					stroke={stroke}
 					strokeWidth={strokeWidth}
@@ -137,7 +159,7 @@ export function Spotlight({
 				/>
 			))}
 		</svg>,
-		document.body,
+		container ?? document.body,
 	);
 }
 

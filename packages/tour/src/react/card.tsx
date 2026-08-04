@@ -4,8 +4,10 @@ import { Slot } from "@radix-ui/react-slot";
 import * as React from "react";
 import { createPortal } from "react-dom";
 import { TOUR_ANIMATION_DURATION } from "../core/constants";
+import type { Position } from "../core/engine";
 import { calculatePosition, unionOf } from "../core/engine";
 import { useTourContext } from "./context";
+import { assignRef, getFocusableElements, useIsMounted } from "./utils";
 
 const CardContext = React.createContext<{
 	arrowStyle: React.CSSProperties;
@@ -16,6 +18,11 @@ export function useCardContext() {
 	if (!ctx) throw new Error("Tour components must be rendered within TourCard");
 	return ctx;
 }
+
+/** Assumed size for the very first paint, before the card has been measured. */
+const ESTIMATED_CARD_SIZE = { width: 340, height: 200 };
+
+const ARROW_SIZE = 14;
 
 export interface TourCardProps extends React.HTMLAttributes<HTMLDivElement> {
 	asChild?: boolean;
@@ -31,27 +38,34 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 			skipAnimation,
 			isAnimatingExit,
 			reducedMotion,
+			config,
+			labelId,
+			descriptionId,
+			container,
+			open,
+			close,
 		} = tourContext;
-		const cardOffset = tourContext.config.cardOffset ?? 16;
-		const showArrow = tourContext.config.showArrow ?? true;
 
-		const [cardSize, setCardSize] = React.useState<{
-			width: number;
-			height: number;
-		}>({ width: 340, height: 200 }); // Default size so it positions immediately
+		const cardOffset = config.cardOffset ?? 16;
+		const showArrow = config.showArrow ?? true;
+		const zIndex = (config.zIndex ?? 9998) + 1;
+		const trapFocus = config.trapFocus ?? false;
+		const autoFocus = config.autoFocus ?? true;
+		const closeOnOutsideClick = config.closeOnOutsideClick ?? false;
+
+		const [cardSize, setCardSize] = React.useState(ESTIMATED_CARD_SIZE);
 		const innerRef = React.useRef<HTMLDivElement>(null);
-
-		const [mounted, setMounted] = React.useState(false);
-		React.useEffect(() => setMounted(true), []);
+		const mounted = useIsMounted();
 
 		React.useLayoutEffect(() => {
-			if (!innerRef.current) return;
 			const node = innerRef.current;
+			if (!node) return;
 
 			if (node.offsetWidth > 0 || node.offsetHeight > 0) {
 				setCardSize({ width: node.offsetWidth, height: node.offsetHeight });
 			}
 
+			if (typeof ResizeObserver === "undefined") return;
 			const ro = new ResizeObserver((entries) => {
 				for (const entry of entries) {
 					const target = entry.target as HTMLDivElement;
@@ -79,32 +93,22 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 					)
 				: null;
 
-		const lastPosRef = React.useRef<{
-			left: number;
-			top: number;
-			side: string;
-			arrow: { x: number; y: number };
-		} | null>(null);
+		// Hold the last resolved position so the card doesn't jump to the corner
+		// while the next step's target is still being located.
+		const lastPosRef = React.useRef<Position | null>(null);
+		if (activePos) lastPosRef.current = activePos;
 
-		if (activePos) {
-			lastPosRef.current = activePos;
-		}
-
-		const pos = activePos || lastPosRef.current;
-		const placementStr = currentStep?.placement || "bottom-center";
-		const side = pos?.side || placementStr.split("-")[0] || "bottom";
+		const pos = activePos ?? lastPosRef.current;
+		const side = pos?.side ?? currentStep?.placement?.split("-")[0] ?? "bottom";
 
 		let arrowStyle: React.CSSProperties = { display: "none" };
 		if (anchor && pos && !isWaiting && showArrow) {
-			const arrowSize = 14;
-			const offset = arrowSize / 2;
-			const relativeX = pos.arrow.x;
-			const relativeY = pos.arrow.y;
+			const offset = ARROW_SIZE / 2;
 
 			arrowStyle = {
 				position: "absolute",
-				width: arrowSize,
-				height: arrowSize,
+				width: ARROW_SIZE,
+				height: ARROW_SIZE,
 				backgroundColor: "inherit",
 				borderColor: "inherit",
 				borderStyle: "solid",
@@ -115,19 +119,19 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 
 			if (side === "bottom") {
 				arrowStyle.top = -offset;
-				arrowStyle.left = relativeX - offset;
+				arrowStyle.left = pos.arrow.x - offset;
 				arrowStyle.borderWidth = "1px 0 0 1px";
 			} else if (side === "top") {
 				arrowStyle.bottom = -offset;
-				arrowStyle.left = relativeX - offset;
+				arrowStyle.left = pos.arrow.x - offset;
 				arrowStyle.borderWidth = "0 1px 1px 0";
 			} else if (side === "right") {
 				arrowStyle.left = -offset;
-				arrowStyle.top = relativeY - offset;
+				arrowStyle.top = pos.arrow.y - offset;
 				arrowStyle.borderWidth = "0 0 1px 1px";
 			} else if (side === "left") {
 				arrowStyle.right = -offset;
-				arrowStyle.top = relativeY - offset;
+				arrowStyle.top = pos.arrow.y - offset;
 				arrowStyle.borderWidth = "1px 1px 0 0";
 			}
 		}
@@ -135,10 +139,7 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 		const mergedRef = React.useCallback(
 			(node: HTMLDivElement | null) => {
 				innerRef.current = node;
-				if (typeof ref === "function") ref(node);
-				else if (ref && "current" in ref) {
-					(ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
-				}
+				assignRef(ref, node);
 			},
 			[ref],
 		);
@@ -152,37 +153,78 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 		}
 
 		React.useEffect(() => {
-			if (isTransitioning) {
-				const t = setTimeout(
-					() => setIsTransitioning(false),
-					skipAnimation ? 0 : TOUR_ANIMATION_DURATION,
-				);
-				return () => clearTimeout(t);
-			}
+			if (!isTransitioning) return;
+			const t = setTimeout(
+				() => setIsTransitioning(false),
+				skipAnimation ? 0 : TOUR_ANIMATION_DURATION,
+			);
+			return () => clearTimeout(t);
 		}, [isTransitioning, skipAnimation]);
 
+		// Move focus into the card once per opening, not on every step, so the
+		// user keeps control of the caret while a tour is running.
 		React.useEffect(() => {
-			if (!tourContext.open || !tourContext.config.closeOnOutsideClick) return;
-			const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
-				const targetNode = e.target as Node | null;
-				if (!targetNode) return;
-				if (innerRef.current?.contains(targetNode)) return;
-				tourContext.close();
+			if (!open || !autoFocus || !mounted) return;
+			const frame = requestAnimationFrame(() => {
+				innerRef.current?.focus({ preventScroll: true });
+			});
+			return () => cancelAnimationFrame(frame);
+		}, [open, autoFocus, mounted]);
+
+		React.useEffect(() => {
+			if (!open || !trapFocus) return;
+			const onKeyDown = (e: KeyboardEvent) => {
+				if (e.key !== "Tab" || e.defaultPrevented) return;
+				const node = innerRef.current;
+				if (!node) return;
+
+				const focusables = getFocusableElements(node);
+				if (focusables.length === 0) {
+					e.preventDefault();
+					node.focus({ preventScroll: true });
+					return;
+				}
+
+				const first = focusables[0] as HTMLElement;
+				const last = focusables[focusables.length - 1] as HTMLElement;
+				const active = document.activeElement;
+
+				if (!node.contains(active)) {
+					e.preventDefault();
+					(e.shiftKey ? last : first).focus();
+				} else if (e.shiftKey && (active === first || active === node)) {
+					e.preventDefault();
+					last.focus();
+				} else if (!e.shiftKey && active === last) {
+					e.preventDefault();
+					first.focus();
+				}
 			};
+			document.addEventListener("keydown", onKeyDown, true);
+			return () => document.removeEventListener("keydown", onKeyDown, true);
+		}, [open, trapFocus]);
+
+		React.useEffect(() => {
+			if (!open || !closeOnOutsideClick) return;
+			const handleOutsideClick = (e: MouseEvent | TouchEvent) => {
+				const node = innerRef.current;
+				const path = e.composedPath?.();
+				if (
+					node &&
+					(path ? path.includes(node) : node.contains(e.target as Node))
+				)
+					return;
+				close();
+			};
+			// Deferred so the click that opened the tour doesn't immediately close it.
 			const timer = setTimeout(() => {
-				document.addEventListener("mousedown", handleOutsideClick);
-				document.addEventListener("touchstart", handleOutsideClick);
+				document.addEventListener("pointerdown", handleOutsideClick);
 			}, 50);
 			return () => {
 				clearTimeout(timer);
-				document.removeEventListener("mousedown", handleOutsideClick);
-				document.removeEventListener("touchstart", handleOutsideClick);
+				document.removeEventListener("pointerdown", handleOutsideClick);
 			};
-		}, [
-			tourContext.open,
-			tourContext.config.closeOnOutsideClick,
-			tourContext.close,
-		]);
+		}, [open, closeOnOutsideClick, close]);
 
 		if (!mounted) return null;
 
@@ -199,13 +241,18 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 			<CardContext.Provider value={{ arrowStyle }}>
 				<Comp
 					ref={mergedRef}
+					role="dialog"
+					aria-modal={trapFocus ? true : undefined}
+					aria-labelledby={labelId}
+					aria-describedby={descriptionId}
+					tabIndex={-1}
 					data-state={isWaiting ? "waiting" : "found"}
 					data-side={side}
 					data-open={!isAnimatingExit}
 					{...props}
 					style={{
 						position: "fixed",
-						zIndex: 9999,
+						zIndex,
 						transformOrigin,
 						...(pos
 							? {
@@ -217,17 +264,14 @@ export const Card = React.forwardRef<HTMLDivElement, TourCardProps>(
 											? `transform ${transitionDuration}ms cubic-bezier(0.22, 1, 0.36, 1)`
 											: "none",
 								}
-							: {
-									bottom: "24px",
-									right: "24px",
-								}),
+							: { bottom: "24px", right: "24px" }),
 						...style,
 					}}
 				>
 					{children}
 				</Comp>
 			</CardContext.Provider>,
-			document.body,
+			container ?? document.body,
 		);
 	},
 );
@@ -242,7 +286,14 @@ export const Arrow = React.forwardRef<HTMLDivElement, TourArrowProps>(
 	({ style, asChild, ...props }, ref) => {
 		const { arrowStyle } = useCardContext();
 		const Comp = asChild ? Slot : "div";
-		return <Comp ref={ref} style={{ ...arrowStyle, ...style }} {...props} />;
+		return (
+			<Comp
+				ref={ref}
+				aria-hidden="true"
+				style={{ ...arrowStyle, ...style }}
+				{...props}
+			/>
+		);
 	},
 );
 Arrow.displayName = "Tour.Arrow";
@@ -253,18 +304,19 @@ export interface TourButtonProps
 }
 
 export const NextButton = React.forwardRef<HTMLButtonElement, TourButtonProps>(
-	({ onClick, asChild, ...props }, ref) => {
+	({ onClick, asChild, type = "button", ...props }, ref) => {
 		const { next } = useTourContext();
 		const Comp = asChild ? Slot : "button";
 		return (
 			<Comp
 				ref={ref}
+				type={type}
 				data-sound-click="turn:forward"
-				onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-					next();
-					onClick?.(e);
-				}}
 				{...props}
+				onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+					onClick?.(e);
+					if (!e.defaultPrevented) next();
+				}}
 			/>
 		);
 	},
@@ -275,19 +327,20 @@ NextButton.displayName = "Tour.NextButton";
 export const PreviousButton = React.forwardRef<
 	HTMLButtonElement,
 	TourButtonProps
->(({ onClick, asChild, ...props }, ref) => {
+>(({ onClick, asChild, type = "button", ...props }, ref) => {
 	const { previous, currentStepIndex } = useTourContext();
 	const Comp = asChild ? Slot : "button";
 	return (
 		<Comp
 			ref={ref}
+			type={type}
 			data-sound-click="turn:backward"
-			onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-				previous();
-				onClick?.(e);
-			}}
 			disabled={currentStepIndex === 0}
 			{...props}
+			onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+				onClick?.(e);
+				if (!e.defaultPrevented) previous();
+			}}
 		/>
 	);
 });
@@ -295,18 +348,19 @@ export const PreviousButton = React.forwardRef<
 PreviousButton.displayName = "Tour.PreviousButton";
 
 export const CloseButton = React.forwardRef<HTMLButtonElement, TourButtonProps>(
-	({ onClick, asChild, ...props }, ref) => {
+	({ onClick, asChild, type = "button", ...props }, ref) => {
 		const { close } = useTourContext();
 		const Comp = asChild ? Slot : "button";
 		return (
 			<Comp
 				ref={ref}
+				type={type}
 				data-sound-click="close"
-				onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
-					close();
-					onClick?.(e);
-				}}
 				{...props}
+				onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+					onClick?.(e);
+					if (!e.defaultPrevented) close();
+				}}
 			/>
 		);
 	},

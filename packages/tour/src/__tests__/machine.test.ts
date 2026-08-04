@@ -151,7 +151,33 @@ describe("TourEngine", () => {
 		expect(engine.getState().isAnimatingExit).toBe(true);
 	});
 
-	it("throws error if target strategy is error and times out", () => {
+	it("stays usable after destroy so StrictMode remounts still work", () => {
+		const engine = new TourEngine();
+		const steps = [{ id: "step-1" }];
+
+		// React StrictMode runs mount -> cleanup -> mount while `useState` holds on
+		// to this same instance. A permanently dead engine would leave every
+		// development build's tour inert.
+		engine.destroy();
+		engine.setProps(true, 0, steps);
+
+		expect(engine.getState().open).toBe(true);
+		expect(engine.getState().mounted).toBe(true);
+		expect(engine.getState().currentStep?.id).toBe("step-1");
+	});
+
+	it("re-notifies subscribers registered after a destroy", () => {
+		const engine = new TourEngine();
+		engine.destroy();
+
+		const listener = vi.fn();
+		engine.subscribe(listener);
+		engine.setProps(true, 0, [{ id: "step-1" }]);
+
+		expect(listener).toHaveBeenCalled();
+	});
+
+	it("reports via onError instead of throwing when strategy is error", () => {
 		const engine = new TourEngine();
 		const steps = [
 			{
@@ -159,11 +185,33 @@ describe("TourEngine", () => {
 				target: { selector: "#never", strategy: "error" as const, timeout: 50 },
 			},
 		];
+		const onError = vi.fn();
+		engine.setOptions({ onError });
 		engine.setProps(true, 0, steps);
 
-		expect(() => {
-			vi.advanceTimersByTime(100);
-		}).toThrowError("Tour target timeout: #never");
+		// Throwing here would escape into a timer callback where nothing can
+		// catch it and would take down the host app.
+		expect(() => vi.advanceTimersByTime(100)).not.toThrow();
+		expect(onError).toHaveBeenCalledTimes(1);
+		expect(onError.mock.calls[0][0]).toBeInstanceOf(Error);
+		expect(onError.mock.calls[0][0].message).toBe(
+			"Tour target timeout: #never",
+		);
+	});
+
+	it("logs the error when strategy is error and no onError handler is set", () => {
+		const spy = vi.spyOn(console, "error").mockImplementation(() => {});
+		const engine = new TourEngine();
+		engine.setProps(true, 0, [
+			{
+				id: "step-1",
+				target: { selector: "#never", strategy: "error" as const, timeout: 50 },
+			},
+		]);
+
+		expect(() => vi.advanceTimersByTime(100)).not.toThrow();
+		expect(spy).toHaveBeenCalledTimes(1);
+		spy.mockRestore();
 	});
 
 	it("calls onSkip if target strategy is skip and times out", () => {
@@ -180,6 +228,59 @@ describe("TourEngine", () => {
 
 		vi.advanceTimersByTime(100);
 		expect(onSkip).toHaveBeenCalledTimes(1);
+	});
+
+	it("does not retrack when only the steps array identity changes", () => {
+		const el = document.createElement("div");
+		el.id = "stable-target";
+		Object.defineProperty(window, "getComputedStyle", {
+			value: () => ({ visibility: "visible", borderRadius: "0px" }),
+			configurable: true,
+		});
+		el.getBoundingClientRect = () =>
+			({
+				top: 10,
+				left: 10,
+				width: 100,
+				height: 100,
+				bottom: 110,
+				right: 110,
+			}) as DOMRect;
+		el.scrollIntoView = vi.fn();
+		document.body.appendChild(el);
+
+		const onTargetFound = vi.fn();
+		const engine = new TourEngine();
+		engine.setOptions({ onTargetFound });
+
+		engine.setProps(true, 0, [{ id: "s1", target: "#stable-target" }]);
+		expect(onTargetFound).toHaveBeenCalledTimes(1);
+
+		// A consumer rendering `tours={[...]}` inline hands us a brand new array
+		// (and new step objects) on every parent render. That must not restart the
+		// tracker, because restarting clears the rects, flashes the waiting state
+		// and re-runs scrollIntoView, yanking the page on every re-render.
+		for (let i = 0; i < 3; i++) {
+			engine.setProps(true, 0, [{ id: "s1", target: "#stable-target" }]);
+		}
+
+		expect(onTargetFound).toHaveBeenCalledTimes(1);
+		expect(el.scrollIntoView).not.toHaveBeenCalled();
+		expect(engine.getState().rects.length).toBe(1);
+
+		document.body.removeChild(el);
+	});
+
+	it("retracks when the step's target actually changes", () => {
+		const engine = new TourEngine();
+		const onTargetWaiting = vi.fn();
+		engine.setOptions({ onTargetWaiting });
+
+		engine.setProps(true, 0, [{ id: "s1", target: "#a" }]);
+		expect(onTargetWaiting).toHaveBeenCalledTimes(1);
+
+		engine.setProps(true, 0, [{ id: "s1", target: "#b" }]);
+		expect(onTargetWaiting).toHaveBeenCalledTimes(2);
 	});
 
 	it("calls onTargetFound and onTargetWaiting when targets resolve", () => {
@@ -199,7 +300,7 @@ describe("TourEngine", () => {
 				height: 100,
 				bottom: 110,
 				right: 110,
-			}) as any;
+			}) as DOMRect;
 		document.body.appendChild(el);
 
 		const onTargetFound = vi.fn();

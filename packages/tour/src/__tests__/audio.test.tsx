@@ -1,61 +1,16 @@
-import { fireEvent, render, screen } from "@testing-library/react";
-
-import { describe, expect, it, vi } from "vitest";
+import { render, screen, waitFor } from "@testing-library/react";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { CloseButton, NextButton, PreviousButton } from "../react/card";
+import { TourProvider } from "../react/composed";
 import { TourContext } from "../react/context";
-import { observe, sounds } from "../react/index";
 
-// Mock Web Audio API for JSDOM constructor call: `new AudioContext()`
-if (typeof window !== "undefined") {
-	class MockAudioContext {
-		currentTime = 0;
-		state = "running";
-		destination = {};
-		resume = vi.fn().mockResolvedValue(undefined);
-		createGain = vi.fn().mockReturnValue({
-			gain: {
-				value: 1,
-				setValueAtTime: vi.fn(),
-				exponentialRampToValueAtTime: vi.fn(),
-			},
-			connect: vi.fn(),
-		});
-		createWaveShaper = vi.fn().mockReturnValue({
-			curve: new Float32Array(),
-			oversample: "none",
-			connect: vi.fn(),
-		});
-		createBiquadFilter = vi.fn().mockReturnValue({
-			type: "highshelf",
-			frequency: { setValueAtTime: vi.fn() },
-			gain: { setValueAtTime: vi.fn() },
-			connect: vi.fn(),
-		});
-		createDynamicsCompressor = vi.fn().mockReturnValue({
-			threshold: { setValueAtTime: vi.fn() },
-			knee: { setValueAtTime: vi.fn() },
-			ratio: { setValueAtTime: vi.fn() },
-			attack: { setValueAtTime: vi.fn() },
-			release: { setValueAtTime: vi.fn() },
-			connect: vi.fn(),
-		});
-		createConvolver = vi.fn().mockReturnValue({
-			buffer: null,
-			connect: vi.fn(),
-		});
-		createBuffer = vi.fn().mockReturnValue({
-			getChannelData: vi.fn().mockReturnValue(new Float32Array(100)),
-		});
-		createBufferSource = vi.fn().mockReturnValue({
-			buffer: null,
-			connect: vi.fn(),
-			start: vi.fn(),
-			stop: vi.fn(),
-		});
-	}
+const observeCleanup = vi.fn();
+const observe = vi.fn(() => observeCleanup);
 
-	window.AudioContext = MockAudioContext as unknown as typeof AudioContext;
-}
+vi.mock("@inklu/audio", () => ({
+	observe,
+	sounds: { tap: vi.fn(), turn: vi.fn() },
+}));
 
 const mockTourContextValue = {
 	tour: null,
@@ -70,21 +25,58 @@ const mockTourContextValue = {
 	skipAnimation: true,
 	isAnimatingExit: false,
 	reducedMotion: false,
+	config: {},
+	labelId: "label",
+	descriptionId: "description",
+	container: null,
 	next: vi.fn(),
 	previous: vi.fn(),
 	close: vi.fn(),
-	labels: { next: "Next", previous: "Prev", finish: "Finish" },
-} as any;
+} as never;
 
-describe("@inklu/tour Audio Integration", () => {
-	it("re-exports observe and sounds from @inklu/audio", () => {
-		expect(observe).toBeTypeOf("function");
-		expect(sounds).toBeDefined();
-		expect(sounds.tap).toBeTypeOf("function");
-		expect(sounds.turn).toBeTypeOf("function");
+// Cleared before rather than after each test: the global cleanup hook that
+// unmounts leftover trees runs after this file's hooks, so clearing afterwards
+// would let that unmount's teardown call bleed into the next test's counts.
+beforeEach(() => {
+	vi.clearAllMocks();
+});
+
+describe("@inklu/tour audio integration", () => {
+	it("does not load @inklu/audio unless enableAudio is set", async () => {
+		render(
+			<TourProvider tours={[]}>
+				<div>app</div>
+			</TourProvider>,
+		);
+
+		// Give the dynamic import a chance to resolve before asserting it didn't run.
+		await new Promise((resolve) => setTimeout(resolve, 0));
+		expect(observe).not.toHaveBeenCalled();
 	});
 
-	it("renders NextButton, PreviousButton, and CloseButton with proper data-sound-click attributes", () => {
+	it("lazily loads and starts the audio observer when enableAudio is set", async () => {
+		render(
+			<TourProvider tours={[]} enableAudio>
+				<div>app</div>
+			</TourProvider>,
+		);
+
+		await waitFor(() => expect(observe).toHaveBeenCalledTimes(1));
+	});
+
+	it("tears the audio observer down on unmount", async () => {
+		const { unmount } = render(
+			<TourProvider tours={[]} enableAudio>
+				<div>app</div>
+			</TourProvider>,
+		);
+
+		await waitFor(() => expect(observe).toHaveBeenCalledTimes(1));
+		unmount();
+		expect(observeCleanup).toHaveBeenCalledTimes(1);
+	});
+
+	it("renders navigation buttons with the data-sound-click hooks", () => {
 		render(
 			<TourContext.Provider value={mockTourContextValue}>
 				<NextButton>Next</NextButton>
@@ -93,13 +85,21 @@ describe("@inklu/tour Audio Integration", () => {
 			</TourContext.Provider>,
 		);
 
-		const nextBtn = screen.getByRole("button", { name: "Next" });
-		const prevBtn = screen.getByRole("button", { name: "Prev" });
-		const closeBtn = screen.getByRole("button", { name: "Close" });
-
-		expect(nextBtn.getAttribute("data-sound-click")).toBe("turn:forward");
-		expect(prevBtn.getAttribute("data-sound-click")).toBe("turn:backward");
-		expect(closeBtn.getAttribute("data-sound-click")).toBe("close");
+		expect(
+			screen
+				.getByRole("button", { name: "Next" })
+				.getAttribute("data-sound-click"),
+		).toBe("turn:forward");
+		expect(
+			screen
+				.getByRole("button", { name: "Prev" })
+				.getAttribute("data-sound-click"),
+		).toBe("turn:backward");
+		expect(
+			screen
+				.getByRole("button", { name: "Close" })
+				.getAttribute("data-sound-click"),
+		).toBe("close");
 	});
 
 	it("allows custom data-sound overrides on tour buttons", () => {
@@ -109,30 +109,10 @@ describe("@inklu/tour Audio Integration", () => {
 			</TourContext.Provider>,
 		);
 
-		const nextBtn = screen.getByRole("button", { name: "Custom Next" });
-		expect(nextBtn.getAttribute("data-sound-click")).toBe("success");
-	});
-
-	it("initializes observe() when TourProvider is mounted with default enableAudio=true", () => {
-		const cleanup = observe();
-		expect(cleanup).toBeTypeOf("function");
-		cleanup();
-	});
-
-	it("handles user interactions and triggers sound events via data-attributes without error", () => {
-		const cleanup = observe();
-
-		render(
-			<TourContext.Provider value={mockTourContextValue}>
-				<NextButton>Next Step</NextButton>
-			</TourContext.Provider>,
-		);
-
-		const btn = screen.getByRole("button", { name: "Next Step" });
-		expect(() => {
-			fireEvent.click(btn);
-		}).not.toThrow();
-
-		cleanup();
+		expect(
+			screen
+				.getByRole("button", { name: "Custom Next" })
+				.getAttribute("data-sound-click"),
+		).toBe("success");
 	});
 });

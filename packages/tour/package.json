@@ -1,31 +1,56 @@
 {
 	"name": "@inklu/tour",
 	"version": "0.1.0",
-	"private": true,
+	"description": "Accessible, headless product tours for React — spotlight overlay, resilient target tracking, and full composition control.",
+	"license": "MIT",
+	"author": "nkurunziza-saddy",
+	"homepage": "https://github.com/nkurunziza-saddy/inklu-tour#readme",
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/nkurunziza-saddy/inklu-tour.git",
+		"directory": "packages/tour"
+	},
+	"bugs": {
+		"url": "https://github.com/nkurunziza-saddy/inklu-tour/issues"
+	},
+	"keywords": [
+		"react",
+		"tour",
+		"onboarding",
+		"product-tour",
+		"walkthrough",
+		"spotlight",
+		"guided-tour",
+		"accessibility",
+		"a11y",
+		"headless"
+	],
+	"sideEffects": false,
 	"main": "dist/index.js",
 	"module": "dist/index.mjs",
 	"types": "dist/index.d.ts",
+	"files": [
+		"dist",
+		"README.md",
+		"LICENSE"
+	],
 	"exports": {
 		".": {
 			"types": "./dist/index.d.ts",
 			"import": "./dist/index.mjs",
-			"require": "./dist/index.js"
+			"require": "./dist/index.js",
+			"default": "./dist/index.js"
 		},
 		"./react": {
 			"types": "./dist/react.d.ts",
 			"import": "./dist/react.mjs",
-			"require": "./dist/react.js"
+			"require": "./dist/react.js",
+			"default": "./dist/react.js"
 		},
-		"./vue": {
-			"types": "./dist/vue.d.ts",
-			"import": "./dist/vue.mjs",
-			"require": "./dist/vue.js"
-		},
-		"./svelte": {
-			"types": "./dist/svelte.d.ts",
-			"import": "./dist/svelte.mjs",
-			"require": "./dist/svelte.js"
-		}
+		"./package.json": "./package.json"
+	},
+	"publishConfig": {
+		"access": "public"
 	},
 	"scripts": {
 		"build": "tsc --noEmit && tsup",
@@ -33,41 +58,36 @@
 		"check-types": "tsc --noEmit",
 		"test": "vitest run",
 		"test:watch": "vitest",
-		"test:coverage": "vitest run --coverage"
+		"test:coverage": "vitest run --coverage",
+		"prepublishOnly": "pnpm run build"
 	},
 	"peerDependencies": {
+		"@inklu/audio": "^0.2.1",
 		"react": "^18.0.0 || ^19.0.0",
-		"react-dom": "^18.0.0 || ^19.0.0",
-		"svelte": "^4.0.0 || ^5.0.0",
-		"vue": "^3.0.0"
+		"react-dom": "^18.0.0 || ^19.0.0"
 	},
 	"peerDependenciesMeta": {
-		"react": {
-			"optional": true
-		},
-		"react-dom": {
-			"optional": true
-		},
-		"vue": {
-			"optional": true
-		},
-		"svelte": {
+		"@inklu/audio": {
 			"optional": true
 		}
 	},
 	"dependencies": {
-		"@inklu/audio": "^0.2.1",
 		"@radix-ui/react-slot": "^1.1.0"
 	},
 	"devDependencies": {
+		"@inklu/audio": "^0.2.1",
+		"@testing-library/jest-dom": "^7.0.0",
 		"@testing-library/react": "^16.3.2",
 		"@types/react": "^19",
 		"@types/react-dom": "^19",
 		"@vitest/coverage-v8": "^4.1.10",
 		"jsdom": "^29.1.1",
-		"svelte": "5.0.0-next.272",
+		"react": "^19.2.8",
+		"react-dom": "^19.2.8",
 		"tsup": "^8.5.1",
-		"vitest": "^4.1.10",
-		"vue": "^3.5.40"
+		"vitest": "^4.1.10"
+	},
+	"engines": {
+		"node": ">=18"
 	}
 }

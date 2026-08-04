@@ -1,8 +1,8 @@
 "use client";
 
-import { observe } from "@inklu/audio";
 import * as React from "react";
-import type { TourConfig, TourConfigOptions } from "../../core/types";
+import type { TourConfigOptions } from "../../core/types";
+import type { TourConfig } from "../types";
 import { injectTourStyles } from "./styles";
 import { Tour } from "./tour";
 
@@ -10,8 +10,16 @@ export interface TourProviderProps {
 	tours: TourConfig[];
 	/** Called when a step has a `route` property and becomes active. Wire your router here (e.g. `router.push`). */
 	onNavigate?: (route: string) => void;
-	/** Enable declarative audio synthesis via `@inklu/audio` data attributes. Defaults to true. */
+	/**
+	 * Enable declarative audio via `@inklu/audio` data attributes. Requires
+	 * `@inklu/audio` to be installed; it is loaded on demand and silently
+	 * skipped when absent. Defaults to false.
+	 */
 	enableAudio?: boolean;
+	/** Called when a step with `strategy: "error"` times out. */
+	onError?: (error: Error) => void;
+	/** Portal target for the card and spotlight. Defaults to `document.body`. */
+	container?: Element | null;
 	children: React.ReactNode;
 	config?: TourConfigOptions;
 }
@@ -25,6 +33,10 @@ export interface UseTourReturn {
 	activeTourId: string | null;
 	/** Whether a tour is currently open. */
 	isActive: boolean;
+	/** Index of the active step within the running tour. */
+	stepIndex: number;
+	/** Jump to a specific step of the running tour. */
+	goToStep: (index: number) => void;
 	/** Current active configuration options */
 	config: TourConfigOptions;
 	/** Update specific tour configuration options dynamically */
@@ -32,6 +44,8 @@ export interface UseTourReturn {
 }
 
 const TourManagerContext = React.createContext<UseTourReturn | null>(null);
+
+const EMPTY_TOURS: TourConfig[] = [];
 
 /**
  * Access the tour manager from anywhere inside `<TourProvider>`.
@@ -59,27 +73,47 @@ export function useTour(): UseTourReturn {
 export function TourProvider({
 	tours,
 	onNavigate,
-	enableAudio = true,
+	enableAudio = false,
+	onError,
+	container = null,
 	children,
-	config: initialConfig = {},
+	config: initialConfig,
 }: TourProviderProps) {
 	React.useEffect(() => {
 		injectTourStyles();
 	}, []);
 
+	// Loaded on demand so consumers who don't opt into sound never pay for the
+	// audio library — it is an optional peer dependency, not a hard one.
 	React.useEffect(() => {
-		if (enableAudio) {
-			const cleanup = observe();
-			return cleanup;
-		}
+		if (!enableAudio) return;
+		let cleanup: (() => void) | undefined;
+		let cancelled = false;
+
+		import("@inklu/audio")
+			.then(({ observe }) => {
+				if (cancelled) return;
+				cleanup = observe();
+			})
+			.catch(() => {
+				console.warn(
+					"[@inklu/tour] enableAudio is set but @inklu/audio could not be loaded. Install it to enable tour sounds.",
+				);
+			});
+
+		return () => {
+			cancelled = true;
+			cleanup?.();
+		};
 	}, [enableAudio]);
 
 	const [activeTourId, setActiveTourId] = React.useState<string | null>(null);
 	const [open, setOpen] = React.useState(false);
 	const [stepIndex, setStepIndex] = React.useState(0);
 
-	const [config, setConfigState] =
-		React.useState<TourConfigOptions>(initialConfig);
+	const [config, setConfigState] = React.useState<TourConfigOptions>(
+		() => initialConfig ?? {},
+	);
 
 	const updateConfig = React.useCallback(
 		(newConfig: Partial<TourConfigOptions>) => {
@@ -88,7 +122,14 @@ export function TourProvider({
 		[],
 	);
 
-	const safeTours = tours || [];
+	const safeTours = tours ?? EMPTY_TOURS;
+
+	// Keep a ref so `startTour` stays referentially stable even when callers
+	// pass a new `tours` array literal on every render.
+	const toursRef = React.useRef(safeTours);
+	React.useEffect(() => {
+		toursRef.current = safeTours;
+	});
 
 	const activeTour = React.useMemo(
 		() => safeTours.find((t) => t.id === activeTourId) ?? null,
@@ -100,31 +141,35 @@ export function TourProvider({
 		navigateRef.current = onNavigate;
 	}, [onNavigate]);
 
-	const startTour = React.useCallback(
-		(id: string) => {
-			setActiveTourId(id);
-			setStepIndex(0);
-			setOpen(true);
+	const startTour = React.useCallback((id: string) => {
+		const tour = toursRef.current.find((t) => t.id === id);
+		if (!tour) {
+			console.warn(`[@inklu/tour] No tour registered with id "${id}".`);
+			return;
+		}
+		setActiveTourId(id);
+		setStepIndex(0);
+		setOpen(true);
 
-			const tour = safeTours.find((t) => t.id === id);
-			const route = tour?.steps[0]?.route;
-			if (route) navigateRef.current?.(route);
-		},
-		[safeTours],
-	);
+		const route = tour.steps[0]?.route;
+		if (route) navigateRef.current?.(route);
+	}, []);
 
 	const stopTour = React.useCallback(() => {
 		setOpen(false);
 	}, []);
 
-	const handleStepChange = React.useCallback(
-		(newIndex: number) => {
-			setStepIndex(newIndex);
-			const route = activeTour?.steps[newIndex]?.route;
-			if (route) navigateRef.current?.(route);
-		},
-		[activeTour],
-	);
+	const activeTourIdRef = React.useRef(activeTourId);
+	React.useEffect(() => {
+		activeTourIdRef.current = activeTourId;
+	}, [activeTourId]);
+
+	const handleStepChange = React.useCallback((newIndex: number) => {
+		setStepIndex(newIndex);
+		const route = toursRef.current.find((t) => t.id === activeTourIdRef.current)
+			?.steps[newIndex]?.route;
+		if (route) navigateRef.current?.(route);
+	}, []);
 
 	const contextValue = React.useMemo<UseTourReturn>(
 		() => ({
@@ -132,10 +177,21 @@ export function TourProvider({
 			stopTour,
 			activeTourId,
 			isActive: open,
+			stepIndex,
+			goToStep: handleStepChange,
 			config,
 			updateConfig,
 		}),
-		[startTour, stopTour, activeTourId, open, config, updateConfig],
+		[
+			startTour,
+			stopTour,
+			activeTourId,
+			open,
+			stepIndex,
+			handleStepChange,
+			config,
+			updateConfig,
+		],
 	);
 
 	return (
@@ -149,6 +205,8 @@ export function TourProvider({
 				onStepChange={handleStepChange}
 				onDismiss={stopTour}
 				onComplete={stopTour}
+				onError={onError}
+				container={container}
 				config={config}
 			/>
 		</TourManagerContext.Provider>

@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-import type { TourRootProps } from "..";
 import {
 	TourArrow,
 	TourCard,
@@ -9,12 +7,15 @@ import {
 	TourNextButton,
 	TourPreviousButton,
 	TourRoot,
+	type TourRootProps,
 	TourSpotlight,
 	useTourContext,
 } from "..";
+import { defaultStepCounter } from "../root";
 
 export type { TourRootProps };
 
+/** Batteries-included tour UI. Compose `TourRoot` directly for full control. */
 export function Tour(props: TourRootProps) {
 	return (
 		<TourRoot {...props}>
@@ -33,10 +34,21 @@ export function Tour(props: TourRootProps) {
 }
 
 function TourCardContent() {
-	const { currentStep, currentStepIndex, totalSteps, isWaiting, config } =
-		useTourContext();
+	const {
+		currentStep,
+		currentStepIndex,
+		totalSteps,
+		isWaiting,
+		config,
+		labelId,
+		descriptionId,
+	} = useTourContext();
 
 	if (!currentStep) return null;
+
+	const labels = config.labels;
+	const counter = labels?.stepCounter ?? defaultStepCounter;
+	const isLastStep = currentStepIndex === totalSteps - 1;
 
 	return (
 		<div className="inklu-tour-body">
@@ -46,29 +58,32 @@ function TourCardContent() {
 						className="inklu-tour-content-wrapper"
 						key={`title-${currentStep.id}`}
 					>
-						<div className="inklu-tour-title">
-							{(currentStep.meta?.title as React.ReactNode) ?? "Tour Step"}
-						</div>
+						<h2 className="inklu-tour-title" id={labelId}>
+							{currentStep.meta?.title ?? "Tour Step"}
+						</h2>
 					</div>
 					<TourCloseButton className="inklu-tour-close">
 						<CloseIcon />
-						<span className="inklu-tour-sr-only">Close tour</span>
+						<span className="inklu-tour-sr-only">
+							{labels?.close ?? "Close tour"}
+						</span>
 					</TourCloseButton>
 				</div>
 			</div>
 
 			<div
 				className="inklu-tour-content inklu-tour-content-wrapper"
+				id={descriptionId}
 				key={`content-${currentStep.id}`}
 			>
-				{currentStep.meta?.content as React.ReactNode}
+				{currentStep.meta?.content}
 			</div>
 
 			<div className="inklu-tour-footer">
 				<div className="inklu-tour-footer-left">
 					{totalSteps > 1 && (
 						<div className="inklu-tour-step-counter">
-							{currentStepIndex + 1} of {totalSteps}
+							{counter(currentStepIndex + 1, totalSteps)}
 						</div>
 					)}
 				</div>
@@ -77,16 +92,19 @@ function TourCardContent() {
 						className="inklu-tour-btn-prev"
 						disabled={currentStepIndex === 0 || isWaiting}
 					>
-						{config.labels?.previous ?? "Prev"}
+						{labels?.previous ?? "Prev"}
 					</TourPreviousButton>
 
 					<TourNextButton className="inklu-tour-btn-next" disabled={isWaiting}>
 						{isWaiting ? (
-							<span className="inklu-tour-spinner" />
-						) : currentStepIndex === totalSteps - 1 ? (
-							(config.labels?.finish ?? "Finish")
+							<>
+								<span className="inklu-tour-spinner" aria-hidden="true" />
+								<span className="inklu-tour-sr-only">Locating target</span>
+							</>
+						) : isLastStep ? (
+							(labels?.finish ?? "Finish")
 						) : (
-							(config.labels?.next ?? "Next")
+							(labels?.next ?? "Next")
 						)}
 					</TourNextButton>
 				</div>
@@ -104,6 +122,8 @@ function CloseIcon() {
 			height="14"
 			viewBox="0 0 15 15"
 			fill="none"
+			aria-hidden="true"
+			focusable="false"
 			xmlns="http://www.w3.org/2000/svg"
 		>
 			<path
