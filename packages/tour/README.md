@@ -190,6 +190,17 @@ who don't opt in never pay for it:
 Buttons carry `data-sound-click` hooks (`turn:forward`, `turn:backward`,
 `close`) which you can override per button.
 
+## Using this with a coding agent
+
+An agent skill ships alongside the library at `skills/inklu-tour`. It walks a
+coding agent through building a tour correctly — targeting, routing, the
+accessibility wiring, and the mistakes that are easy to make — and carries a
+full API reference. Install it via [skills.sh](https://skills.sh):
+
+```sh
+npx skills add nkurunziza-saddy/inklu-tour
+```
+
 ## Framework-agnostic core
 
 `@inklu/tour` (the root entry) exports the engine, target tracker, and geometry

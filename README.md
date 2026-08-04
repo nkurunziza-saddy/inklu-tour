@@ -8,8 +8,29 @@ tours for React.
 | Path | What it is |
 | --- | --- |
 | `packages/tour` | The published `@inklu/tour` package. |
-| `apps/playground` | Vite app used as the Playwright end-to-end target. |
 | `apps/docs` | Next.js documentation site. |
+| `apps/playground` | Vite app used as the Playwright end-to-end target. |
+| `skills/inklu-tour` | Agent skill teaching coding agents how to use the library. |
+
+## Agent skill
+
+`skills/inklu-tour` is a [Claude Code skill](https://docs.claude.com/en/docs/claude-code/skills):
+a guided walkthrough that teaches an agent how to build tours with this
+library, plus a full API reference and recipes. Install it via
+[skills.sh](https://skills.sh):
+
+```sh
+npx skills add nkurunziza-saddy/inklu-tour
+```
+
+This pulls `skills/inklu-tour` into `.claude/skills` (project-scoped) or
+`~/.claude/skills` (user-scoped) depending on how you invoke it — see the
+[skills CLI docs](https://github.com/vercel-labs/skills) for flags. Start a new
+agent session afterwards to pick it up.
+
+When changing the library's public API, update `skills/inklu-tour/` in the same
+change — it is documentation that ships to agents, and stale guidance is worse
+than none.
 
 ## Development
 

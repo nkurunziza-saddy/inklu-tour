@@ -252,6 +252,28 @@ engine.setOptions({ onStepChange: (i) => render(i) });
 engine.subscribe(() => render(engine.getState()));
 engine.setProps(true, 0, steps);`,
 	},
+	skillInstall: {
+		lang: "bash",
+		code: "npx skills add nkurunziza-saddy/inklu-tour",
+	},
+	controlledTour: {
+		lang: "tsx",
+		code: `import { Tour } from "@inklu/tour/react";
+
+// Same props as TourRoot, but keeps the built-in card.
+// Use this instead of TourProvider when you own the state.
+const [open, setOpen] = useState(false);
+const [step, setStep] = useState(0);
+
+<Tour
+  tour={tour}
+  open={open}
+  onOpenChange={setOpen}
+  stepIndex={step}
+  onStepChange={setStep}
+  onComplete={() => markOnboarded()}
+/>;`,
+	},
 	nextjsExample: {
 		lang: "tsx",
 		code: `// app/providers.tsx

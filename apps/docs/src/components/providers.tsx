@@ -41,5 +41,11 @@ const tours: TourConfig[] = [
 ];
 
 export function Providers({ children }: { children: React.ReactNode }) {
-	return <TourProvider tours={tours}>{children}</TourProvider>;
+	// `enableAudio` is opt-in — @inklu/audio is an optional peer dependency that
+	// is only loaded when a project asks for it.
+	return (
+		<TourProvider tours={tours} enableAudio>
+			{children}
+		</TourProvider>
+	);
 }

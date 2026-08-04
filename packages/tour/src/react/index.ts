@@ -39,7 +39,12 @@ export type {
 	TourSettingsMorphProps,
 	UseTourReturn,
 } from "./composed";
-export { TourProvider, TourSettingsMorph, useTour } from "./composed";
+export {
+	Tour,
+	TourProvider,
+	TourSettingsMorph,
+	useTour,
+} from "./composed";
 export type { TourContextValue } from "./context";
 export { TourContext, useTourContext } from "./context";
 export type { TourRootProps } from "./root";

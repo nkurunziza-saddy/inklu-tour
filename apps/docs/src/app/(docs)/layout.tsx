@@ -8,9 +8,12 @@ import {
 	Code,
 	Compass,
 	Cpu,
+	PersonArmsSpread,
+	Robot,
 	Sliders,
 	SpeakerHigh,
 	TerminalWindow,
+	Translate,
 } from "@phosphor-icons/react/dist/ssr";
 import type * as React from "react";
 
@@ -26,6 +29,12 @@ const LINKS = [
 		url: "/docs#installation",
 		isAnchor: true,
 		icon: <TerminalWindow weight="duotone" className="size-4" />,
+	},
+	{
+		title: "Coding agent skill",
+		url: "/docs#agent-skill",
+		isAnchor: true,
+		icon: <Robot weight="duotone" className="size-4" />,
 	},
 	{
 		title: "Quick Start",
@@ -46,22 +55,40 @@ const LINKS = [
 		icon: <Cpu weight="duotone" className="size-4" />,
 	},
 	{
+		title: "Strategies",
+		url: "/docs#strategies",
+		isAnchor: true,
+		icon: <Cpu weight="duotone" className="size-4" />,
+	},
+	{
+		title: "Accessibility",
+		url: "/docs#accessibility",
+		isAnchor: true,
+		icon: <PersonArmsSpread weight="duotone" className="size-4" />,
+	},
+	{
 		title: "Components & Composition",
 		url: "/docs#components",
 		isAnchor: true,
 		icon: <Code weight="duotone" className="size-4" />,
 	},
 	{
-		title: "Skip Strategies",
-		url: "/docs#strategies",
+		title: "Localisation",
+		url: "/docs#i18n",
 		isAnchor: true,
-		icon: <Sliders weight="duotone" className="size-4" />,
+		icon: <Translate weight="duotone" className="size-4" />,
 	},
 	{
 		title: "Audio Integration",
 		url: "/docs#audio-integration",
 		isAnchor: true,
 		icon: <SpeakerHigh weight="duotone" className="size-4" />,
+	},
+	{
+		title: "Framework-agnostic core",
+		url: "/docs#core",
+		isAnchor: true,
+		icon: <Cpu weight="duotone" className="size-4" />,
 	},
 	{
 		title: "Configuration Reference",

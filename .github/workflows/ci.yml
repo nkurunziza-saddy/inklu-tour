@@ -56,6 +56,20 @@ jobs:
       - name: Verify publishable contents
         run: pnpm --filter @inklu/tour exec npm pack --dry-run
 
+      - name: Verify the agent skill is discoverable via skills.sh
+        run: |
+          for f in skills/inklu-tour/SKILL.md \
+                   skills/inklu-tour/references/api.md \
+                   skills/inklu-tour/references/recipes.md; do
+            test -f "$f" || { echo "::error::missing $f"; exit 1; }
+          done
+          # The real installer, not a hand-rolled check: `skills add --list`
+          # parses SKILL.md frontmatter and lists what it finds. This is what
+          # `npx skills add nkurunziza-saddy/inklu-tour` will see once pushed.
+          npx --yes skills add . --list 2>&1 | tee /tmp/skills-list.txt
+          grep -q 'inklu-tour' /tmp/skills-list.txt \
+            || { echo "::error::skills CLI did not discover the inklu-tour skill"; exit 1; }
+
   e2e:
     runs-on: ubuntu-latest
     steps:
